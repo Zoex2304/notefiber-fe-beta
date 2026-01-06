@@ -51,42 +51,42 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Dashboard',
-          url: '/',
+          url: '/admin', // Dashboard is at /admin
           icon: LayoutDashboard,
         },
         {
           title: 'Subscription Plans',
-          url: '/plans',
+          url: '/admin/plans',
           icon: Package,
         },
         {
           title: 'Users',
-          url: '/users',
+          url: '/admin/users',
           icon: Users,
         },
         {
           title: 'Token Usage',
-          url: '/token-usage',
+          url: '/admin/token-usage',
           icon: Activity,
         },
         {
           title: 'Payments',
-          url: '/payments',
+          url: '/admin/payments',
           icon: CreditCard,
         },
         {
           title: 'Refunds',
-          url: '/refunds',
+          url: '/admin/refunds',
           icon: RotateCcw,
         },
         {
           title: 'Cancellations',
-          url: '/cancellations',
+          url: '/admin/cancellations',
           icon: Ban,
         },
         {
           title: 'System Logs',
-          url: '/logs',
+          url: '/admin/logs',
           icon: ScrollText,
         },
       ],
@@ -97,12 +97,12 @@ export const sidebarData: SidebarData = {
       items: [
         {
           title: 'Configurations',
-          url: '/ai/configurations',
+          url: '/admin/ai/configurations',
           icon: Settings2,
         },
         {
           title: 'Nuances',
-          url: '/ai/nuances',
+          url: '/admin/ai/nuances',
           icon: Bot,
         },
       ],
@@ -116,34 +116,34 @@ export const sidebarData: SidebarData = {
           items: [
             {
               title: 'Profile',
-              url: '/settings',
+              url: '/admin/settings',
               icon: UserCog,
             },
             {
               title: 'Account',
-              url: '/settings/account',
+              url: '/admin/settings/account',
               icon: Wrench,
             },
             {
               title: 'Appearance',
-              url: '/settings/appearance',
+              url: '/admin/settings/appearance',
               icon: Palette,
             },
             {
               title: 'Notifications',
-              url: '/settings/notifications',
+              url: '/admin/settings/notifications',
               icon: Bell,
             },
             {
               title: 'Display',
-              url: '/settings/display',
+              url: '/admin/settings/display',
               icon: Monitor,
             },
           ],
         },
         {
           title: 'Help Center',
-          url: '/help-center',
+          url: '/admin/help-center',
           icon: HelpCircle,
         },
       ],
