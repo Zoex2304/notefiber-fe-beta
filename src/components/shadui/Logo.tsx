@@ -40,13 +40,13 @@ export function Logo({ variant, size, className, ...props }: LogoProps) {
         <img
           src={HorizontalLogo}
           alt="NoteFiber Horizontal Logo"
-          className={cn(logoVariants({ size }), "dark:hidden")}
+          className={cn(logoVariants({ size }), "dark:hidden h-full w-auto")}
           {...props}
         />
         <img
           src={HorizontalLogoDark}
           alt="NoteFiber Horizontal Logo"
-          className={cn(logoVariants({ size }), "hidden dark:block")}
+          className={cn(logoVariants({ size }), "hidden dark:block h-full w-auto")}
           {...props}
         />
       </div>

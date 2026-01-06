@@ -21,7 +21,7 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
     const showChat = checkPermission('ai_chat');
 
     return (
-        <div className="h-12 bg-background border-b border-border flex items-center justify-between px-4 gap-4">
+        <div className="h-14 bg-background border-b border-border flex items-center justify-between px-4 gap-4">
             {/* Left side spacer or breadcrumbs if needed, currently just pushing to right if justify-end, 
                  but user might want search on left/center? 
                  User said "search icon should be transformed into a full search bar". 

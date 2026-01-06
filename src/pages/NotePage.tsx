@@ -7,6 +7,9 @@ import { Link } from "@tanstack/react-router";
 import "@/App.css";
 import { useNoteOrchestratorContext } from "@/contexts/NoteOrchestratorContext";
 
+import ChatbotBackground from '@/assets/images/common/chatbot_gradient_background_v2.svg';
+import ChatbotBackgroundDark from '@/assets/images/common/chatbot_gradient_background_v2_dark.svg';
+
 export default function NotePage() {
     // -- Orchestration --
     const {
@@ -16,18 +19,30 @@ export default function NotePage() {
     } = useNoteOrchestratorContext();
 
     return (
-        <div className="flex-1 flex flex-col bg-background overflow-hidden relative h-full">
+        <div className="flex-1 flex flex-col overflow-hidden relative h-full z-0">
+            {/* Background Gradient */}
+            <img
+                src={ChatbotBackground}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none -z-10 opacity-50 dark:hidden"
+            />
+            <img
+                src={ChatbotBackgroundDark}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none -z-10 hidden dark:block"
+            />
+
             {/* Note Content */}
             <div className="absolute inset-0 flex flex-col overflow-y-auto overflow-x-hidden">
                 {activeNote.isLoadingNote ? (
-                    <div className="flex-1 flex items-center justify-center bg-background">
+                    <div className="flex-1 flex items-center justify-center bg-transparent">
                         <div className="text-center">
                             <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
                             <p className="text-gray-600">Loading note...</p>
                         </div>
                     </div>
                 ) : activeNote.noteError ? (
-                    <div className="flex-1 flex items-center justify-center bg-background">
+                    <div className="flex-1 flex items-center justify-center bg-transparent">
                         <div className="text-center">
                             <div className="text-6xl mb-4">❌</div>
                             <h2 className="text-xl font-medium mb-2 text-red-600">

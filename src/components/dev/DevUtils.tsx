@@ -62,9 +62,9 @@ export function DevUtils() {
     };
 
     return (
-        <div className="fixed bottom-4 left-4 z-[9999] bg-white border border-gray-200 shadow-xl rounded-lg p-4 w-[300px] animate-in slide-in-from-bottom-5">
-            <div className="flex items-center justify-between mb-4 border-b border-gray-100 pb-2">
-                <h3 className="font-semibold text-sm">Dev Utilities</h3>
+        <div className="fixed bottom-4 left-4 z-[9999] bg-card border border-border shadow-xl rounded-lg p-4 w-[300px] animate-in slide-in-from-bottom-5">
+            <div className="flex items-center justify-between mb-4 border-b border-border pb-2">
+                <h3 className="font-semibold text-sm text-card-foreground">Dev Utilities</h3>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setIsOpen(false)}>
                     <X className="h-4 w-4" />
                 </Button>
@@ -73,22 +73,22 @@ export function DevUtils() {
             <div className="space-y-3">
                 <div className="space-y-2">
                     <p className="text-xs text-muted-foreground font-medium uppercase">Toaster System</p>
-                    <Button onClick={triggerToasts} variant="outline" className="w-full justify-start text-xs h-8">
+                    <Button onClick={triggerToasts} variant="outline" className="w-full justify-start text-xs h-8 bg-background hover:bg-muted border-border text-foreground">
                         <CheckCircle className="mr-2 h-3.5 w-3.5 text-green-500" />
                         Test All Variants
                     </Button>
                 </div>
 
-                <div className="space-y-2 pt-2 border-t border-gray-50">
+                <div className="space-y-2 pt-2 border-t border-border">
                     <p className="text-xs text-muted-foreground font-medium uppercase">Notifications</p>
-                    <Button onClick={triggerNotificationRing} variant="outline" className="w-full justify-start text-xs h-8">
+                    <Button onClick={triggerNotificationRing} variant="outline" className="w-full justify-start text-xs h-8 bg-background hover:bg-muted border-border text-foreground">
                         <Bell className="mr-2 h-3.5 w-3.5 text-amber-500" />
                         Trigger Bell Animation
                     </Button>
                 </div>
             </div>
 
-            <div className="mt-4 text-[10px] text-gray-400 text-center">
+            <div className="mt-4 text-[10px] text-muted-foreground/50 text-center">
                 Press Ctrl + U to toggle this panel
             </div>
         </div>

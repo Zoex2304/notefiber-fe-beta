@@ -122,15 +122,15 @@ export function AppSidebar({
             onToggle={toggleCollapse}
             className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
         >
-            {/* Header: Logo + Actions on SAME row - h-12 to match TopBar */}
-            <div className="h-12 px-4 border-b border-sidebar-border flex items-center shrink-0">
+            {/* Header: Logo + Actions on SAME row - h-14 to match TopBar */}
+            <div className="h-14 px-4 border-b border-sidebar-border flex items-center shrink-0">
                 <div className="flex items-center justify-between w-full gap-2">
                     {/* Logo */}
                     {isCollapsed ? (
                         <Logo variant="symbol" className="h-7 w-7 mx-auto" />
                     ) : (
                         <>
-                            <Logo variant="horizontal" className="h-7 shrink-0" />
+                            <Logo variant="horizontal" className="h-8 shrink-0" />
                             {/* Action Buttons (Icon-only like VS Code) */}
                             <div className="flex gap-1 shrink-0">
                                 <ActionTooltip label="New Notebook" side="bottom">
