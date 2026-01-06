@@ -29,7 +29,7 @@ interface SidebarState {
 
 export const useSidebarStore = create<SidebarState>()(
     persist(
-        (set, get) => ({
+        (set) => ({
             isLeftOpen: true,
 
             isRightOpen: false,
