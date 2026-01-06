@@ -2,9 +2,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@admin/components/ui/c
 import { cn } from '@admin/lib/utils'
 import type { LucideIcon } from 'lucide-react'
 
+import type { ReactNode } from 'react'
+
 interface StatCardProps {
     title: string
-    value: string | number
+    value: string | number | ReactNode
     description?: string
     icon?: LucideIcon
     trend?: {

@@ -5,8 +5,8 @@ import { UsersPrimaryButtons } from './components/users-primary-buttons'
 import { UsersProvider } from './components/users-provider'
 import { UsersTable } from './components/users-table'
 import { useUsers } from './hooks/use-users'
-import { UserListParams } from '@admin/lib/types/admin-api'
-import { NavigateFn } from '@admin/hooks/use-table-url-state'
+import type { UserListParams } from '@admin/lib/types/admin-api'
+import type { NavigateFn } from '@admin/hooks/use-table-url-state'
 
 
 const route = getRouteApi('/admin/_authenticated/users/')

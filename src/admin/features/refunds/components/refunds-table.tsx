@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 import {
-    ColumnDef,
     flexRender,
     getCoreRowModel,
     useReactTable,
     getPaginationRowModel,
 } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal, Eye, CheckCircle, XCircle } from 'lucide-react'
 import { formatDistanceToNow, format } from 'date-fns'
 import { Button } from '@admin/components/ui/button'

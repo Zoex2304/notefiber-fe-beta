@@ -9,7 +9,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toaster } from '@admin/hooks/useToaster';
 import { aiLimitService } from '../services/ai-limit.service';
-import type { TokenUsageItem, UpdateAiLimitResponse } from '../types';
+import type { TokenUsageItem } from '../types';
 import type { WebSocketMessage } from '@admin/lib/api/websocket-client';
 
 interface UseAiLimitManagementResult {
@@ -49,8 +49,7 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
     // ========== Helper: Update Cache ==========
     const updateUserInCache = useCallback((
         userId: string,
-        updates: { chat?: number; search?: number },
-        remaining?: number
+        updates: { chat?: number; search?: number }
     ) => {
         // Update all queries starting with the prefix (handles pagination keys)
         queryClient.setQueriesData({ queryKey: queryKeyPrefix }, (oldData: TokenUsageItem[] | undefined) => {
@@ -60,13 +59,17 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
                 if (user.user_id === userId) {
                     const updatedUser = { ...user };
 
-                    if (updates.chat !== undefined) updatedUser.ai_chat_daily_usage = updates.chat;
-                    if (updates.search !== undefined) updatedUser.semantic_search_daily_usage = updates.search;
-
-                    // Update remaining based on backend response or local calc
-                    if (remaining !== undefined) {
-                        updatedUser.ai_daily_remaining = remaining;
+                    if (updates.chat !== undefined) {
+                        updatedUser.ai_chat_daily_usage = updates.chat;
+                        // Recalculate remaining
+                        updatedUser.ai_chat_daily_remaining = Math.max(0, updatedUser.ai_chat_daily_limit - updates.chat);
                     }
+                    if (updates.search !== undefined) {
+                        updatedUser.semantic_search_daily_usage = updates.search;
+                        // Recalculate remaining
+                        updatedUser.semantic_search_daily_remaining = Math.max(0, updatedUser.semantic_search_daily_limit - updates.search);
+                    }
+
                     return updatedUser;
                 }
                 return user;
@@ -113,8 +116,7 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
             // Optimistic update
             updateUserInCache(
                 data.user_id,
-                { chat: data.new_chat_usage, search: data.new_semantic_search_usage },
-                data.ai_daily_remaining
+                { chat: data.new_chat_usage, search: data.new_semantic_search_usage }
             );
             closeEditDialog();
         },
@@ -134,8 +136,7 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
             // I'll rely on response data.
             updateUserInCache(
                 data.user_id,
-                { chat: data.new_chat_usage, search: data.new_semantic_search_usage },
-                data.ai_daily_remaining
+                { chat: data.new_chat_usage, search: data.new_semantic_search_usage }
             );
         },
         onError: () => {
@@ -183,8 +184,7 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
                 const {
                     user_id,
                     new_chat_usage,
-                    new_semantic_search_usage,
-                    ai_daily_remaining
+                    new_semantic_search_usage
                 } = metadata;
 
                 if (typeof user_id === 'string') {
@@ -193,8 +193,7 @@ export function useAiLimitManagement(): UseAiLimitManagementResult {
                         {
                             chat: typeof new_chat_usage === 'number' ? new_chat_usage : undefined,
                             search: typeof new_semantic_search_usage === 'number' ? new_semantic_search_usage : undefined
-                        },
-                        typeof ai_daily_remaining === 'number' ? ai_daily_remaining : undefined
+                        }
                     );
                 }
             }

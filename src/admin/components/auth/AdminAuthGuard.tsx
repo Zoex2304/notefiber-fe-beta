@@ -10,10 +10,10 @@ export function AdminAuthGuard() {
         if (!isLoading && !isAuthenticated) {
             // Store intended destination
             const currentPath = window.location.pathname;
-            if (currentPath !== '/sign-in-2') {
+            if (currentPath !== '/admin/sign-in-2') {
                 localStorage.setItem('admin_redirect', currentPath);
             }
-            navigate({ to: '/sign-in-2' });
+            navigate({ to: '/admin/sign-in-2' });
         }
     }, [isAuthenticated, isLoading, navigate]);
 

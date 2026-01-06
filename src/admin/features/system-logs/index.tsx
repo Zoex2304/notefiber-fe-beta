@@ -2,8 +2,8 @@ import { getRouteApi } from '@tanstack/react-router'
 import { Main } from '@admin/components/layout/main'
 import { LogsTable } from './components/logs-table'
 import { useLogs } from './hooks/use-logs'
-import { LogListParams } from '@admin/lib/types/admin-api'
-import { NavigateFn } from '@admin/hooks/use-table-url-state'
+import type { LogListParams } from '@admin/lib/types/admin-api'
+import type { NavigateFn } from '@admin/hooks/use-table-url-state'
 
 const route = getRouteApi('/admin/_authenticated/logs')
 

@@ -35,6 +35,16 @@ export interface BulkResetAiLimitRequest {
     user_ids: string[];
 }
 
+/**
+ * Common list params
+ */
+export interface TokenUsageParams {
+    page?: number;
+    limit?: number;
+    q?: string;
+    sort?: string;
+}
+
 // ========== Response Types ==========
 
 /**
@@ -94,3 +104,5 @@ export interface TokenUsageApiResponse<T> {
     data: T;
 }
 
+// Alias for common usage list response
+export type TokenUsageResponse = TokenUsageApiResponse<TokenUsageItem[]>;

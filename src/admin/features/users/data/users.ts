@@ -1,33 +1,27 @@
 import { faker } from '@faker-js/faker'
+import type { User } from '@admin/lib/types/admin-api'
 
 // Set a fixed seed for consistent data generation
 faker.seed(67890)
 
-export const users = Array.from({ length: 500 }, () => {
+export const users: User[] = Array.from({ length: 500 }, () => {
   const firstName = faker.person.firstName()
   const lastName = faker.person.lastName()
+  const fullName = `${firstName} ${lastName}`
+
   return {
     id: faker.string.uuid(),
-    firstName,
-    lastName,
-    username: faker.internet
-      .username({ firstName, lastName })
-      .toLocaleLowerCase(),
     email: faker.internet.email({ firstName }).toLocaleLowerCase(),
-    phoneNumber: faker.phone.number({ style: 'international' }),
+    full_name: fullName,
     status: faker.helpers.arrayElement([
       'active',
-      'inactive',
-      'invited',
-      'suspended',
+      'pending',
+      'banned',
     ]),
     role: faker.helpers.arrayElement([
-      'superadmin',
       'admin',
-      'cashier',
-      'manager',
+      'user',
     ]),
-    createdAt: faker.date.past(),
-    updatedAt: faker.date.recent(),
+    created_at: faker.date.past().toISOString(),
   }
 })

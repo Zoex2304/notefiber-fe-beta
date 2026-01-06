@@ -1,16 +1,15 @@
 import { useState } from 'react'
 import {
-    SortingState,
-    VisibilityState,
     flexRender,
     getCoreRowModel,
-    getFacetedRowModel,
-    getFacetedUniqueValues,
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    getFacetedRowModel,
+    getFacetedUniqueValues,
     useReactTable,
 } from '@tanstack/react-table'
+import type { ColumnDef, SortingState, VisibilityState } from '@tanstack/react-table'
 import {
     Table,
     TableBody,
@@ -24,7 +23,7 @@ import { useTableUrlState } from '@admin/hooks/use-table-url-state'
 import { logsColumns } from './logs-columns'
 import { type SystemLog } from '@admin/lib/types/admin-api'
 import { Skeleton } from '@admin/components/ui/skeleton'
-import { NavigateFn } from '@admin/hooks/use-table-url-state'
+import type { NavigateFn } from '@admin/hooks/use-table-url-state'
 import { LogDetailSheet } from './log-detail-sheet'
 
 interface LogsTableProps {

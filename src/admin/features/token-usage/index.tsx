@@ -13,7 +13,7 @@ import { BulkActionsBar } from './components/bulk-actions-bar';
 import { useTokenUsage } from './hooks/use-token-usage';
 import { useAiLimitManagement } from './hooks/use-ai-limit-management';
 import { Activity } from 'lucide-react';
-import { NavigateFn } from '@admin/hooks/use-table-url-state';
+import type { NavigateFn } from '@admin/hooks/use-table-url-state';
 
 // Define search params type locally or in types
 interface TokenUsageSearchParams {

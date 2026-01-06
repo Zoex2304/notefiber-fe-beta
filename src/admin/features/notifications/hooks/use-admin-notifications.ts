@@ -80,7 +80,7 @@ export function useAdminNotifications(): UseAdminNotificationsResult {
         // Convert /refunds/:id to /refunds?highlight=:id for table highlighting
         const refundMatch = url.match(/^\/refunds\/([a-f0-9-]+)$/i);
         if (refundMatch) {
-            navigate({ to: '/refunds', search: { highlight: refundMatch[1] } });
+            navigate({ to: '/admin/refunds', search: { highlight: refundMatch[1] } });
         } else {
             navigate({ to: url });
         }

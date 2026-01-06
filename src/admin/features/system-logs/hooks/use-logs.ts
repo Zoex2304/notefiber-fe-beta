@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { adminLogsApi } from '@admin/lib/api/admin-api'
-import { LogListParams } from '@admin/lib/types/admin-api'
+import type { LogListParams } from '@admin/lib/types/admin-api'
 
 export const logKeys = {
     all: ['system-logs'] as const,

@@ -1,15 +1,14 @@
 import {
     useRef,
-    useEffect,
     useCallback,
     forwardRef,
     useImperativeHandle,
-    KeyboardEvent,
     Fragment
 } from "react";
+import type { KeyboardEvent } from "react";
 import { X, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { Note } from "@/types/note";
+// import type { Note } from "@/types/note";
 
 // -----------------------------------------------------------------------------
 // Types

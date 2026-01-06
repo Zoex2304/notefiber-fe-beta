@@ -87,7 +87,7 @@ export function NavUser({ user }: NavUserProps) {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem asChild>
-                  <Link to='/admin/settings/account'>
+                  <Link to="/admin/settings/account">
                     <BadgeCheck />
                     Account
                   </Link>
@@ -99,7 +99,7 @@ export function NavUser({ user }: NavUserProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to='/admin/settings/notifications'>
+                  <Link to="/admin/settings/notifications">
                     <Bell />
                     Notifications
                   </Link>

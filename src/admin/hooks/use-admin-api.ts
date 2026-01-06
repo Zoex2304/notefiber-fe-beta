@@ -15,9 +15,6 @@ import type {
     RefundRequest,
     TransactionListParams,
     UpgradeSubscriptionRequest,
-    UpgradeSubscriptionRequest,
-    CreatePlanDisplayFeatureRequest,
-    UpdatePlanDisplayFeatureRequest,
     CreateFeatureRequest,
     UpdateFeatureRequest,
 } from '../lib/types/admin-api'

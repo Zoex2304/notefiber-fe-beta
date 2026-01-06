@@ -1,7 +1,7 @@
 import { Button } from '@admin/components/ui/button'
 import { Badge } from '@admin/components/ui/badge'
 import { Checkbox } from '@admin/components/ui/checkbox'
-import { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import { ArrowUpDown } from 'lucide-react'
 import { type SystemLog } from '@admin/lib/types/admin-api'
 

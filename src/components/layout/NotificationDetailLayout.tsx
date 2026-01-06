@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/shadui/card';
 import { Button } from '@/components/shadui/button';
 import { Badge } from '@/components/shadui/badge';
