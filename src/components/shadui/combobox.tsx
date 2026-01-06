@@ -94,7 +94,8 @@ export function Combobox({
                                 <CommandItem
                                     key={option.key || option.value}
                                     value={option.label}
-                                    onSelect={(currentValue) => {
+                                    onSelect={(_currentValue) => {
+                                        // const currentValue = values.find((v) => v === value)
                                         // Shadcn/cmdk might alter the value (lowercase etc), but we want the Option value
                                         // We map back by finding the option that matches the label (currentValue) OR just use the closure's option.value
                                         // Using closure option.value is safer for ID-based selects with same labels, 

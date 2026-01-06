@@ -25,7 +25,7 @@ import {
     AlertDialogTitle,
 } from '@admin/components/ui/alert-dialog'
 import { Badge } from '@admin/components/ui/badge'
-import { Check, ChevronsUpDown, Trash2, Plus, Sparkles, ArrowLeft, Loader2 } from 'lucide-react'
+import { Check, ChevronsUpDown, Trash2, Sparkles, ArrowLeft, Loader2 } from 'lucide-react'
 import { usePlanFeatures, useAssignFeature, useRemoveFeature, useFeatures } from '@admin/hooks/use-admin-api'
 import { cn } from '@admin/lib/utils'
 import type { Feature } from '@admin/lib/types/admin-api'

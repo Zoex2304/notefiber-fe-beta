@@ -39,7 +39,7 @@ export function ResponsiveToolbar({ items, className }: ResponsiveToolbarProps) 
                 for (let i = 0; i < widths.length; i++) {
                     const itemW = widths[i];
 
-                    const isLast = i === items.length - 1;
+                    // const isLast = i === items.length - 1;
 
                     if (currentWidth + itemW <= containerWidth) {
                         if (i < items.length - 1) {

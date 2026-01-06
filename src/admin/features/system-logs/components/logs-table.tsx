@@ -9,7 +9,7 @@ import {
     getFacetedUniqueValues,
     useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef, SortingState, VisibilityState } from '@tanstack/react-table'
+import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import {
     Table,
     TableBody,

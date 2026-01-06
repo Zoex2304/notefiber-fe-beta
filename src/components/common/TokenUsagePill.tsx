@@ -26,7 +26,7 @@ export function TokenUsagePill({ className, type = 'chat', compact = false }: To
     if (!isActive || !metric || metric.limit === undefined) return null;
 
     const isChat = type === 'chat';
-    const isSearch = type === 'search'; // Fixed logic for icon selection below
+    // const isSearch = type === 'search'; // Fixed logic for icon selection below
 
     return (
         <GradientPill className={className} compact={compact}>

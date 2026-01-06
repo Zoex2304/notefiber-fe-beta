@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader } from '@/components/shadui/card';
 import { Button } from '@/components/shadui/button';
 import { Badge } from '@/components/shadui/badge';
 import { Skeleton } from '@/components/shadui/skeleton';
-import { ArrowLeft, XCircle, LucideIcon } from 'lucide-react';
+import { ArrowLeft, XCircle } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NotificationDetailLayoutProps {

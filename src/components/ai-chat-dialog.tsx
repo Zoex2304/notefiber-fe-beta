@@ -3,6 +3,10 @@ export interface AIChatDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function AIChatDialog(props: AIChatDialogProps) {
+export function AiChatDialog(_props: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  ;
+}
+
+export function AIChatDialog(_props: AIChatDialogProps) {
   return null;
 }

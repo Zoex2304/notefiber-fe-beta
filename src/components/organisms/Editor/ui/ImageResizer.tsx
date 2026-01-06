@@ -16,7 +16,7 @@ export default function ImageResizer({
     imageRef,
     maxWidth,
     editor,
-    setShowCaption,
+
 }: {
     editor: LexicalEditor;
     buttonRef: { current: null | HTMLButtonElement };

@@ -76,7 +76,7 @@ export function RefundDialog({ open, onOpenChange, transaction }: RefundDialogPr
         },
     });
 
-    const handleSubmit = (data: RefundFormValues) => {
+    const handleSubmit = (_data: RefundFormValues) => {
         setStep('confirm');
     };
 

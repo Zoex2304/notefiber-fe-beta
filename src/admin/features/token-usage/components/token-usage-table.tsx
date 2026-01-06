@@ -5,7 +5,7 @@
  * Uses shared data-table infrastructure for search, sort, and pagination.
  */
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import {
     flexRender,
     getCoreRowModel,
@@ -76,7 +76,6 @@ export function TokenUsageTable({
     onResetUser,
 }: TokenUsageTableProps) {
     // Local UI states
-    const [rowSelection, setRowSelection] = useState({});
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [sorting, setSorting] = useState<SortingState>([]);
 

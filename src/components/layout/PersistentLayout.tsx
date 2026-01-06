@@ -27,7 +27,7 @@ export function PersistentLayout() {
     // Sidebar Store
     const isRightOpen = useSidebarStore(s => s.isRightOpen);
     const isRightCollapsed = useSidebarStore(s => s.isRightCollapsed);
-    const toggleRightSidebar = useSidebarStore(s => s.toggleRightSidebar);
+    // const _toggleRightSidebar = useSidebarStore(s => s.toggleRightSidebar);
     const openChat = useSidebarStore(s => s.openChat);
 
     // Background Job Notification Logic

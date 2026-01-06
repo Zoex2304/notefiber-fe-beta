@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
-import { FileText, Command } from "lucide-react";
+import { FileText } from "lucide-react";
+
 import type { SuggestionItem } from "@/hooks/chat/useInputSuggestions";
 
 export interface SuggestionMenuProps {

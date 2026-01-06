@@ -9,7 +9,6 @@ import { AlertCircle, User, CreditCard } from 'lucide-react'
 import { format } from 'date-fns'
 import { UserBillingTab } from './components/user-billing-tab'
 
-// @ts-expect-error Route generation might be stale
 const route = getRouteApi('/admin/_authenticated/users/$userId')
 
 export function UserDetail() {
