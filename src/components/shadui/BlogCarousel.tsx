@@ -7,7 +7,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 const DUMMY_BLOG_DATA: BlogCardData[] = [
   {
     id: "1",
-    imageUrl: "/src/assets/images/landing/illustrations/plc1.svg",
+    imageUrl: "/images/landing/illustrations/plc1.svg",
     labels: ["Financial", "Technology"],
     subject:
       "How real-time analytics can revolutionize your financial strategy",
@@ -16,7 +16,7 @@ const DUMMY_BLOG_DATA: BlogCardData[] = [
   },
   {
     id: "2",
-    imageUrl: "/src/assets/images/landing/illustrations/plc2.svg",
+    imageUrl: "/images/landing/illustrations/plc2.svg",
     labels: ["Investment", "SaaS"],
     subject: "The 5 SaaS metrics every investor needs to track in 2026",
     description:
@@ -24,7 +24,7 @@ const DUMMY_BLOG_DATA: BlogCardData[] = [
   },
   {
     id: "3",
-    imageUrl: "/src/assets/images/landing/illustrations/plc3.svg",
+    imageUrl: "/images/landing/illustrations/plc3.svg",
     labels: ["Productivity"],
     subject: "Streamlining Your Workflow: A Guide to NoteFiber Features",
     description:
@@ -32,7 +32,7 @@ const DUMMY_BLOG_DATA: BlogCardData[] = [
   },
   {
     id: "4",
-    imageUrl: "/src/assets/images/landing/illustrations/plc1.svg",
+    imageUrl: "/images/landing/illustrations/plc1.svg",
     labels: ["Financial", "Startups"],
     subject: "Another amazing blog post about financial management",
     description:

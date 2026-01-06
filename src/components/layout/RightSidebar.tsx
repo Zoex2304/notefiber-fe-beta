@@ -215,7 +215,7 @@ export function RightSidebar({
             {/* Header */}
             <div className={cn(
                 "flex items-center justify-between border-b border-border bg-background flex-shrink-0 overflow-hidden",
-                isCollapsed ? "h-12 px-2 flex-col justify-center gap-2" : "h-12 px-4"
+                isCollapsed ? "h-14 px-2 flex-col justify-center gap-2" : "h-14 px-4"
             )}>
                 {isCollapsed ? (
                     <Logo variant="symbol" className="h-5 w-5 mx-auto" />

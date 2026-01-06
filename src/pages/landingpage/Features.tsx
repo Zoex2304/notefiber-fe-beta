@@ -11,7 +11,7 @@ export default function Features() {
         tagText="Features"
         title="Powerful Features for You"
         description="Explore the tools that will revolutionize your workflow and boost your team's efficiency."
-        imageSrc="/src/assets/images/landing/illustrations/ilustration of feature page hero.png"
+        imageSrc="/images/landing/illustrations/ilustration of feature page hero.png"
       />
       <FeaturesSection1 />
       <FAQSection />

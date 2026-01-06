@@ -37,7 +37,7 @@ export function AboutUsSection3() {
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 hidden lg:flex">
                         <div className="w-24 h-24 bg-royal-violet-base rounded-3xl flex items-center justify-center shadow-lg shadow-royal-violet-base/20">
                             <img
-                                src="/src/assets/images/landing/logo/logo_symbol.svg"
+                                src="/images/landing/logo/logo_symbol.svg"
                                 alt="NoteFiber Logo"
                                 className="w-12 h-12 brightness-0 invert"
                             />

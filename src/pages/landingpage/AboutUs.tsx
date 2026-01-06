@@ -13,7 +13,7 @@ export default function AboutUs() {
         tagText="About Us"
         title="We Help You Work Smarter"
         description="Our mission is to empower teams with tools that simplify complexity and drive productivity."
-        imageSrc="/src/assets/images/landing/illustrations/podium.svg"
+        imageSrc="/images/landing/illustrations/podium.svg"
       />
       <AboutUsSection2 />
       <AboutUsSection3 />

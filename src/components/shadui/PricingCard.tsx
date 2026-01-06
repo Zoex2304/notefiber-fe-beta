@@ -186,12 +186,12 @@ export function PricingCard({ data, className, context = 'app', currentPlanSlug 
         "w-full lg:w-[320px] h-auto lg:h-[480px]",
         // Spacing: 24px padding, 20px gap between sections
         "p-6 gap-5",
-        // Style: Light background (existing), rounded corners
-        "bg-white rounded-2xl",
-        // Border & shadow
+        // Style: Theme-aware background, rounded corners
+        "bg-white dark:bg-card rounded-2xl",
+        // Border & shadow (theme-aware)
         isPopular
-          ? "border-2 border-royal-violet-base shadow-lg"
-          : "border border-customBorder-primary",
+          ? "border-2 border-royal-violet-base shadow-lg dark:shadow-royal-violet-base/20"
+          : "border border-customBorder-primary dark:border-border",
         className
       )}
     >
@@ -204,7 +204,7 @@ export function PricingCard({ data, className, context = 'app', currentPlanSlug 
           </div>
         )}
         {/* Plan Title */}
-        <h3 className="text-[20px] leading-[28px] font-medium text-customFont-dark-base">
+        <h3 className="text-[20px] leading-[28px] font-medium text-foreground">
           {title}
         </h3>
         {/* Popular indicator */}
@@ -216,7 +216,7 @@ export function PricingCard({ data, className, context = 'app', currentPlanSlug 
       </div>
 
       {/* 2. Description Section */}
-      <p className="text-[14px] leading-[20px] text-customFont-base w-full">
+      <p className="text-[14px] leading-[20px] text-muted-foreground w-full">
         {description}
       </p>
 
@@ -229,10 +229,10 @@ export function PricingCard({ data, className, context = 'app', currentPlanSlug 
 
       {/* 4. Price Section */}
       <div className="flex items-baseline gap-1 w-full pt-2">
-        <span className="text-[36px] leading-[44px] font-semibold text-customFont-dark-base">
+        <span className="text-[36px] leading-[44px] font-semibold text-foreground">
           {price}
         </span>
-        <span className="text-[14px] leading-[20px] text-customFont-base">
+        <span className="text-[14px] leading-[20px] text-muted-foreground">
           {period}
         </span>
       </div>

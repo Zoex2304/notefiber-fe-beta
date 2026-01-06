@@ -20,7 +20,7 @@ export function TextAreaIntro() {
     >
       {/* 2. Props Kiri */}
       <img
-        src="/src/assets/images/landing/illustrations/props_left.svg"
+        src="/images/landing/illustrations/props_left.svg"
         alt="Decorative Prop"
         className="hidden lg:block flex-shrink-0 h-[53.979px] w-[107.958px]"
       />
@@ -51,7 +51,7 @@ export function TextAreaIntro() {
 
       {/* 4. Props Kanan */}
       <img
-        src="/src/assets/images/landing/illustrations/props_right.svg"
+        src="/images/landing/illustrations/props_right.svg"
         alt="Decorative Prop"
         className="hidden lg:block flex-shrink-0 h-[53.979px] w-[107.958px]"
       />

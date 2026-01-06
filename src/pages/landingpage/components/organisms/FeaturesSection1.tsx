@@ -25,7 +25,7 @@ export function FeaturesSection1() {
                     tagText="Our Feature"
                     title="Ai chatbot integrated"
                     description="Ask questions naturally and get instant answers from all your documents, notes, and recordings. Our AI understands context and delivers precise information when you need it."
-                    imageSrc="/src/assets/images/landing/illustrations/ai chatbot integration ilustration.svg"
+                    imageSrc="/images/landing/illustrations/ai chatbot integration ilustration.svg"
                     imageAlt="AI Chatbot Integration"
                 />
 
@@ -34,7 +34,7 @@ export function FeaturesSection1() {
                     tagText="Our Feature"
                     title="Semantic search"
                     description="Powered by advanced RAG models and contextual search, our system understands the meaning behind your queries. Search by concept, not just keywords, and discover insights across all your content."
-                    imageSrc="/src/assets/images/landing/illustrations/semantic search ilustration.svg"
+                    imageSrc="/images/landing/illustrations/semantic search ilustration.svg"
                     imageAlt="Semantic Search"
                 />
 
@@ -43,7 +43,7 @@ export function FeaturesSection1() {
                     tagText="Our Feature"
                     title="User friendly"
                     description="Experience a clean, intuitive interface that lets you capture, search, and organize your notes effortlessly — powered by AI that understands your workflow."
-                    imageSrc="/src/assets/images/landing/illustrations/user friendly.svg"
+                    imageSrc="/images/landing/illustrations/user friendly.svg"
                     imageAlt="User Friendly Interface"
                 />
             </div>

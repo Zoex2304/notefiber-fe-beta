@@ -10,6 +10,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext'
 import { UpgradeModal } from '@/components/modals/UpgradeModal'
 import { LogOverlay } from '@/utils/debug/LogOverlay'
 import { DevUtils } from '@/components/dev/DevUtils'
+import { cn } from '@/lib/utils'
 
 import { type User } from '@/api/services/auth/auth.types';
 
@@ -53,12 +54,22 @@ function RootComponent() {
     }, []);
 
     const router = useRouterState();
-    const isAdmin = router.location.pathname.startsWith('/admin');
+    const pathname = router.location.pathname;
+    const isAdmin = pathname.startsWith('/admin');
+
+    // Landing page namespace: routes that should have isolated light theme
+    // These routes use LightThemeWrapper which provides its own background
+    const isLandingNamespace = pathname === '/landing' || pathname.startsWith('/landing');
 
     return (
         <SubscriptionProvider>
             <NotificationProvider>
-                <div className="min-h-screen bg-background font-sans antialiased">
+                <div className={cn(
+                    "min-h-screen font-sans antialiased",
+                    // Landing namespace: no background, let LightThemeWrapper handle it
+                    // All other routes: use theme-aware background
+                    !isLandingNamespace && "bg-background"
+                )}>
                     <Outlet />
                     <Toaster />
                     <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
@@ -80,3 +91,4 @@ function RootComponent() {
         </SubscriptionProvider>
     )
 }
+

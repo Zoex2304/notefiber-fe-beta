@@ -49,8 +49,7 @@ import { PlanStatusPill } from "@/components/common/PlanStatusPill";
 import { BillingInfoCard } from "@/components/user/BillingInfoCard";
 import { UsageLimitsGrid } from "@/components/user/UsageLimitsGrid";
 
-import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
-import HeaderGradientDark from '@/assets/images/common/header gradient_v2_dark.svg';
+import { HeaderGradientBackground } from '@/components/atoms/HeaderGradientBackground';
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -165,19 +164,10 @@ export default function AccountSettings() {
 
     return (
         <div className="min-h-screen bg-transparent pb-10">
-            {/* Header Hero */}
+            {/* Header Hero - Single theme-aware component */}
             <div className="relative h-48 sm:h-64 w-full">
-                <div className="absolute inset-0 bg-soft-purple overflow-hidden">
-                    <img
-                        src={HeaderGradient}
-                        alt="Profile Banner"
-                        className="w-full h-full object-cover dark:hidden"
-                    />
-                    <img
-                        src={HeaderGradientDark}
-                        alt="Profile Banner"
-                        className="w-full h-full object-cover hidden dark:block"
-                    />
+                <div className="absolute inset-0 bg-background overflow-hidden">
+                    <HeaderGradientBackground className="w-full h-full" />
                 </div>
             </div>
 

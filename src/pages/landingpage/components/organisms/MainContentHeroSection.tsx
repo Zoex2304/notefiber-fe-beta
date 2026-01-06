@@ -19,7 +19,7 @@ export function MainContentHeroSection({
   tagText,
   title,
   description,
-  imageSrc = "/src/assets/images/landing/illustrations/interface.svg",
+  imageSrc = "/images/landing/illustrations/interface.svg",
   customHeroContent,
 }: MainContentHeroSectionProps) {
   return (

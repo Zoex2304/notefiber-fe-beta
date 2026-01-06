@@ -20,7 +20,7 @@ export function BodyContentHeroSectionWrapperBodyTop({
   return (
     <div className="flex w-full flex-col items-center gap-4 lg:gap-7">
       {/* Tag (Ukuran font mobile: text-body-3 / 13px) */}
-      <Tag iconSrc="/src/assets/images/landing/logo/logo_symbol.svg">
+      <Tag iconSrc="/images/landing/logo/logo_symbol.svg">
         {tagText}
       </Tag>
 

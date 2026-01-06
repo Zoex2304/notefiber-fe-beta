@@ -17,7 +17,7 @@ export function ImagePanelContent3() {
     >
       {/* Gambar */}
       <img
-        src="/src/assets/images/landing/illustrations/cat-sec-3.svg"
+        src="/images/landing/illustrations/cat-sec-3.svg"
         alt="Feature illustration"
         className="h-full w-full object-cover"
       />

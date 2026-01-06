@@ -4,7 +4,7 @@ import { PendingDots } from '@/components/common/PendingDots';
 import { Crown, Sparkles, RotateCcw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
+import { HeaderGradientBackground } from '@/components/atoms/HeaderGradientBackground';
 
 interface SubscriptionHeroSectionProps {
     /** Current plan name */
@@ -74,13 +74,9 @@ export function SubscriptionHeroSection({
             isPaidPlan && "bg-soft-purple dark:bg-card", // Keep special bg for paid in light, default card in dark
             className
         )}>
-            {/* Background Gradient */}
+            {/* Background Gradient - Theme-aware component */}
             {isPaidPlan && (
-                <img
-                    src={HeaderGradient}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 dark:opacity-20"
-                />
+                <HeaderGradientBackground className="absolute inset-0 z-0" />
             )}
 
             {/* Content */}

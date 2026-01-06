@@ -3,22 +3,22 @@ import { TeamCard } from "../molecules/TeamCard";
 
 const teamMembers = [
     {
-        imageSrc: "/src/assets/images/landing/avatar/avatar 1.svg",
+        imageSrc: "/images/landing/avatar/avatar 1.svg",
         name: "Anna Warie",
         role: "CEO & Founder",
     },
     {
-        imageSrc: "/src/assets/images/landing/avatar/avatar 2.svg",
+        imageSrc: "/images/landing/avatar/avatar 2.svg",
         name: "Anna Warie",
         role: "CEO & Founder",
     },
     {
-        imageSrc: "/src/assets/images/landing/avatar/avatar 3.svg",
+        imageSrc: "/images/landing/avatar/avatar 3.svg",
         name: "Anna Warie",
         role: "CEO & Founder",
     },
     {
-        imageSrc: "/src/assets/images/landing/avatar/avatar 4.svg",
+        imageSrc: "/images/landing/avatar/avatar 4.svg",
         name: "Anna Warie",
         role: "CEO & Founder",
     },

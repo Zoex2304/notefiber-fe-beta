@@ -44,7 +44,7 @@ export function AboutUsSection2() {
             {/* 3. Illustration */}
             <div className="w-full max-w-screen-xl px-4">
                 <img
-                    src="/src/assets/images/landing/illustrations/about us sec 2 ilustration cat.svg"
+                    src="/images/landing/illustrations/about us sec 2 ilustration cat.svg"
                     alt="NoteFiber Cat Illustration"
                     className="w-full rounded-2xl object-cover"
                 />

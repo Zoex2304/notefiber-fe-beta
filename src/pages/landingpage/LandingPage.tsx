@@ -1,5 +1,6 @@
 // src/pages/landingpage/LandingPage.tsx
 import { useSearch } from "@tanstack/react-router";
+import { LightThemeWrapper } from "@/core/theme/LightThemeWrapper";
 
 import { HeroSection } from "./components/organisms/HeroSection";
 import { Section2 } from "./components/organisms/Section2";
@@ -47,10 +48,13 @@ export default function LandingPage() {
   };
 
   return (
-    <main className="mx-auto flex w-full max-w-screen-2xl flex-col items-center bg-white">
-      <div className="flex w-full flex-col items-center">
-        {renderPageContent()}
-      </div>
-    </main>
+    <LightThemeWrapper className="w-full">
+      <main className="mx-auto flex w-full max-w-screen-2xl flex-col items-center bg-white">
+        <div className="flex w-full flex-col items-center">
+          {renderPageContent()}
+        </div>
+      </main>
+    </LightThemeWrapper>
   );
 }
+

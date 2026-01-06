@@ -65,7 +65,7 @@ export function ContactFormSection() {
                     {/* Background Texture */}
                     <div className="absolute inset-0 z-0">
                         <img
-                            src="/src/assets/images/landing/texture/triangle grads.svg"
+                            src="/images/landing/texture/triangle grads.svg"
                             alt="Background Texture"
                             className="w-full h-full object-cover"
                         />
@@ -160,7 +160,7 @@ export function ContactFormSection() {
                         {/* Right: Illustration */}
                         <div className="flex flex-1 relative min-h-[400px] lg:min-h-auto">
                             <img
-                                src="/src/assets/images/landing/illustrations/ilustration of sec 2 of contact page.svg"
+                                src="/images/landing/illustrations/ilustration of sec 2 of contact page.svg"
                                 alt="Contact Illustration"
                                 className="absolute inset-0 w-full h-full object-cover"
                             />

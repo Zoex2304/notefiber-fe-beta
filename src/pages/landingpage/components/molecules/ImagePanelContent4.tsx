@@ -19,7 +19,7 @@ export function ImagePanelContent4() {
     >
       {/* Placeholder untuk gambar di dalam */}
       <img
-        src="/src/assets/images/landing/illustrations/circle hell.svg"
+        src="/images/landing/illustrations/circle hell.svg"
         alt="Feature illustration"
         className="h-full w-full rounded-lg object-cover"
       />

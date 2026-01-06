@@ -11,7 +11,7 @@ export default function Contact() {
         tagText="Contact Us"
         title="Get in Touch"
         description="Have questions? We're here to help. Reach out to our team for support or inquiries."
-        imageSrc="/src/assets/images/landing/illustrations/ilustration of hero contact page.svg"
+        imageSrc="/images/landing/illustrations/ilustration of hero contact page.svg"
       />
       <ContactFormSection />
       <FAQSection />

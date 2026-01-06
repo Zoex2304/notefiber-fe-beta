@@ -11,7 +11,7 @@ const potData = [
     title: "Sign up and customize",
     description:
       "Create your account in minutes and tailor the platform to meet your company's unique needs.",
-    imageSrc: "/src/assets/images/landing/illustrations/singupilustaration.svg",
+    imageSrc: "/images/landing/illustrations/singupilustaration.svg",
   },
   {
     icon: Settings,
@@ -19,7 +19,7 @@ const potData = [
     title: "Integrate your tools",
     description:
       "Connect seamlessly with your existing software stack, from accounting to project management.",
-    imageSrc: "/src/assets/images/landing/illustrations/linkuraccount.svg",
+    imageSrc: "/images/landing/illustrations/linkuraccount.svg",
   },
   {
     icon: ClipboardList,
@@ -28,7 +28,7 @@ const potData = [
     description:
       "Assign, track, and complete projects with our intuitive task management interface.",
     imageSrc:
-      "/src/assets/images/landing/illustrations/startmanagingefficiently.svg",
+      "/images/landing/illustrations/startmanagingefficiently.svg",
   },
   {
     icon: Database,
@@ -36,7 +36,7 @@ const potData = [
     title: "Analyze your data",
     description:
       "Gain valuable insights with powerful, real-time analytics and customizable reports.",
-    imageSrc: "/src/assets/images/landing/illustrations/integratedata.svg",
+    imageSrc: "/images/landing/illustrations/integratedata.svg",
   },
 ];
 

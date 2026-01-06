@@ -11,7 +11,7 @@ const DUMMY_COMPANIES = [
   { name: 'Company G' },
 ];
 
-const LOGO_PATH = '/src/assets/images/landing/logo/logo_symbol.svg';
+const LOGO_PATH = '/images/landing/logo/logo_symbol.svg';
 
 /**
  * Komponen "Trailer"

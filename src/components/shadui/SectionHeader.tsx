@@ -126,7 +126,7 @@ const SectionHeader = React.forwardRef<HTMLDivElement, SectionHeaderProps>(
         {/* Grup (Tag + Header) */}
         <div className={cn("flex flex-col gap-4", wrapperVariants({ align }))}>
           {tagText && (
-            <Tag iconSrc="/src/assets/images/landing/logo/logo_symbol.svg">
+            <Tag iconSrc="/images/landing/logo/logo_symbol.svg">
               {tagText}
             </Tag>
           )}

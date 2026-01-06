@@ -16,7 +16,7 @@ export function WrapperHeroSection({ children }: WrapperHeroSectionProps) {
     <SectionContainer
       // Prop 'panelStyle' akan diteruskan ke ContentPanel di dalam
       panelStyle={{
-        backgroundImage: `url('/src/assets/images/landing/backgrounds/gradient-dots-sec1-landingpage.svg')`,
+        backgroundImage: `url('/images/landing/backgrounds/gradient-dots-sec1-landingpage.svg')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",

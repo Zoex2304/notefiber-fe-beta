@@ -22,7 +22,7 @@ export function PricingCallToAction() {
                 {/* Right Side: Image */}
                 <div className="flex justify-center lg:justify-end">
                     <img
-                        src="/src/assets/images/landing/illustrations/circle only hell.svg"
+                        src="/images/landing/illustrations/circle only hell.svg"
                         alt="Productivity Workflow"
                         className="w-full max-w-md lg:max-w-lg"
                     />

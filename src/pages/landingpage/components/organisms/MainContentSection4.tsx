@@ -41,7 +41,7 @@ export function MainContentSection4() {
         {/* Optical centering: gambar mesh tidak simetris, perlu slight offset untuk visual balance */}
         <div className="flex w-full justify-center -mt-12 lg:-mt-24">
           <img
-            src="/src/assets/images/landing/illustrations/circle hell.svg"
+            src="/images/landing/illustrations/circle hell.svg"
             alt="Productivity Workflow Illustration"
             className="
               w-full max-w-5xl

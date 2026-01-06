@@ -23,7 +23,7 @@ export function BridgingHeader({ tagText, headerText }: BridgingHeaderProps) {
     // Container untuk reusable header
     <div className="flex w-full flex-col items-center gap-3 lg:gap-4">
       {/* Tag (reusable) */}
-      <Tag iconSrc="/src/assets/images/landing/logo/logo_symbol.svg">
+      <Tag iconSrc="/images/landing/logo/logo_symbol.svg">
         {tagText}
       </Tag>
 

@@ -20,7 +20,7 @@ export function AuthLayout({ children, title }: AuthLayoutProps) {
             {/* Left Side: Illustration */}
             <div className="hidden lg:flex w-1/2 bg-royal-violet-light/10 relative overflow-hidden">
                 <img
-                    src="/src/assets/images/landing/illustrations/auth ilustration.svg"
+                    src="/images/landing/illustrations/auth ilustration.svg"
                     alt="Auth Illustration"
                     className="absolute inset-0 w-full h-full object-cover dark:brightness-75 dark:sepia-[.2]"
                 />
