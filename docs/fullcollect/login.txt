@@ -1,0 +1,712 @@
+============================================================
+BULKCOLLECT FULL EXPORT
+Date: 2025-12-22 22:53:14
+Total Files: 10
+Total Size: 0.03 MB
+============================================================
+
+>>> FILE: auth.service.ts
+import { apiClient } from '../../client';
+import { ENDPOINTS } from '../../config/endpoints';
+import { type ApiResponse } from '../../types/response.types';
+import * as Types from './auth.types';
+
+export const authService = {
+    register: async (data: Types.RegisterRequest): Promise<ApiResponse<Types.RegisterData>> => {
+        const response = await apiClient.post<ApiResponse<Types.RegisterData>>(ENDPOINTS.AUTH.REGISTER, data);
+        return response.data;
+    },
+
+    verifyEmail: async (data: Types.VerifyEmailRequest): Promise<ApiResponse<null>> => {
+        const response = await apiClient.post<ApiResponse<null>>(ENDPOINTS.AUTH.VERIFY_EMAIL, data);
+        return response.data;
+    },
+
+    login: async (data: Types.LoginRequest): Promise<ApiResponse<Types.LoginData>> => {
+        const response = await apiClient.post<ApiResponse<Types.LoginData>>(ENDPOINTS.AUTH.LOGIN, data);
+        return response.data;
+    },
+
+    forgotPassword: async (data: Types.ForgotPasswordRequest): Promise<ApiResponse<null>> => {
+        const response = await apiClient.post<ApiResponse<null>>(ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
+        return response.data;
+    },
+
+    resetPassword: async (data: Types.ResetPasswordRequest): Promise<ApiResponse<null>> => {
+        const response = await apiClient.post<ApiResponse<null>>(ENDPOINTS.AUTH.RESET_PASSWORD, data);
+        return response.data;
+    },
+
+    logout: async (data: Types.LogoutRequest): Promise<ApiResponse<null>> => {
+        const response = await apiClient.post<ApiResponse<null>>(ENDPOINTS.AUTH.LOGOUT, data);
+        return response.data;
+    },
+
+    refreshToken: async (data: Types.RefreshTokenRequest): Promise<ApiResponse<Types.LoginData>> => {
+        const response = await apiClient.post<ApiResponse<Types.LoginData>>(ENDPOINTS.AUTH.REFRESH_TOKEN, data);
+        return response.data;
+    },
+
+    // Helper for Google Auth - usually this is a redirect, but if we need an API call:
+    // getGoogleUrl: ...
+};
+
+
+
+>>> FILE: auth.types.ts
+import { z } from 'zod';
+import * as schemas from './auth.schemas';
+
+// Request Types
+export type LoginRequest = z.infer<typeof schemas.loginRequestSchema>;
+export type RegisterRequest = z.infer<typeof schemas.registerRequestSchema>;
+export type VerifyEmailRequest = z.infer<typeof schemas.verifyEmailRequestSchema>;
+export type ForgotPasswordRequest = z.infer<typeof schemas.forgotPasswordRequestSchema>;
+export type ResetPasswordRequest = z.infer<typeof schemas.resetPasswordRequestSchema>;
+export interface LogoutRequest {
+    refresh_token: string;
+}
+export interface RefreshTokenRequest {
+    refresh_token: string;
+}
+
+// Response DTOs
+export type User = z.infer<typeof schemas.userSchema>;
+export type LoginData = z.infer<typeof schemas.loginResponseSchema>;
+export type RegisterData = z.infer<typeof schemas.registerResponseSchema>;
+
+// No data response
+export type VoidResponse = null;
+
+
+
+>>> FILE: auth.schemas.ts
+import { z } from 'zod';
+import { emailSchema } from '../../../utils/validators/email.validator';
+import { passwordSchema } from '../../../utils/validators/password.validator';
+
+// Request Schemas (Used for validation before sending if needed, or just type inference)
+export const loginRequestSchema = z.object({
+    email: emailSchema,
+    password: z.string().min(1, 'Password is required'), // Login just needs presence
+    remember_me: z.boolean().optional(),
+});
+
+export const registerRequestSchema = z.object({
+    full_name: z.string().min(2, 'Full name must be at least 2 characters').max(100),
+    email: emailSchema,
+    password: passwordSchema,
+});
+
+export const verifyEmailRequestSchema = z.object({
+    email: emailSchema,
+    token: z.string().length(6, 'OTP must be 6 digits'),
+});
+
+export const forgotPasswordRequestSchema = z.object({
+    email: emailSchema,
+});
+
+export const resetPasswordRequestSchema = z.object({
+    token: z.string(),
+    new_password: passwordSchema,
+    confirm_password: z.string(),
+}).refine((data) => data.new_password === data.confirm_password, {
+    message: "Passwords don't match",
+    path: ["confirm_password"],
+});
+
+// Response Schemas (Used for validating API responses)
+export const userSchema = z.object({
+    id: z.string(),
+    email: z.string().email(),
+    full_name: z.string(),
+    role: z.string(),
+    avatar_url: z.string().optional().nullable(),
+    status: z.string().optional(),
+    ai_daily_usage: z.number().optional(),
+});
+
+export const loginResponseSchema = z.object({
+    access_token: z.string(),
+    refresh_token: z.string().optional(),
+    user: userSchema,
+});
+
+export const registerResponseSchema = z.object({
+    id: z.string(),
+    email: z.string().email(),
+});
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\api\config\endpoints.ts
+/**
+ * API Endpoints
+ * Maps to the API documentation paths
+ */
+
+export const ENDPOINTS = {
+    AUTH: {
+        REGISTER: '/auth/register',
+        VERIFY_EMAIL: '/auth/verify-email',
+        LOGIN: '/auth/login',
+        LOGOUT: '/auth/logout',
+        REFRESH_TOKEN: '/auth/refresh-token',
+        FORGOT_PASSWORD: '/auth/forgot-password',
+        RESET_PASSWORD: '/auth/reset-password',
+        GOOGLE: '/auth/google',
+        GOOGLE_CALLBACK: '/auth/google/callback',
+    },
+    // Public endpoints (no auth required)
+    PUBLIC: {
+        PLANS: '/plans', // GET /api/plans - for pricing modal
+    },
+    USER: {
+        PROFILE: '/user/profile',
+        ACCOUNT: '/user/account',
+        USAGE_STATUS: '/user/usage-status', // GET /api/user/usage-status
+        // NOTE: Use PAYMENT.STATUS for subscription status (old /user/subscription/status doesn't exist)
+    },
+    LOCATION: {
+        DETECT_COUNTRY: '/location/detect-country',
+        CITIES: '/location/cities',
+        STATES: '/location/states',
+        ZIPCODES: '/location/zipcodes',
+    },
+    PAYMENT: {
+        PLANS: '/payment/plans',
+        CHECKOUT: '/payment/checkout',
+        SUMMARY: '/payment/summary',
+        STATUS: '/payment/status',
+    },
+    REFUND: {
+        REQUEST: '/user/refund/request',
+        LIST: '/user/refunds',
+    },
+} as const;
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\hooks\auth\useLogin.ts
+import { useMutation } from '@tanstack/react-query';
+import { authService } from '../../api/services/auth/auth.service';
+import { type LoginRequest, type LoginData } from '../../api/services/auth/auth.types';
+import { type ApiResponse } from '../../api/types/response.types';
+import { useAuth } from './useAuth';
+import { type ApiError } from '../../api/types/error.types';
+import { debugLog } from '../../utils/debug/LogOverlay';
+import { tokenStorage } from '../../utils/storage/token.storage';
+
+export const useLogin = () => {
+    const { login } = useAuth();
+
+    return useMutation<ApiResponse<LoginData>, ApiError, LoginRequest>({
+        mutationFn: async (data) => {
+            debugLog.info("useLogin: Attempting login", { email: data.email });
+            return await authService.login(data);
+        },
+        onSuccess: (response) => {
+            debugLog.info("useLogin: Success", response);
+            // response.data contains { access_token, user }
+            if (response.data) {
+                if (response.data.refresh_token) {
+                    tokenStorage.setRefreshToken(response.data.refresh_token);
+                }
+                login(response.data.access_token, response.data.user);
+            }
+        },
+        onError: (error) => {
+            debugLog.error("useLogin: Failed", error);
+        }
+    });
+};
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\hooks\index.ts
+export * from './auth/useAuth';
+export * from './auth/useLogin';
+export * from './auth/useRegister';
+export * from './auth/useVerifyEmail';
+export * from './auth/useForgotPassword';
+export * from './auth/useResetPassword';
+
+export * from './user/useUserProfile';
+export * from './user/useUpdateProfile';
+export * from './user/useDeleteAccount';
+
+export * from './payment/useSubscriptionPlans';
+export * from './payment/useCheckout';
+
+export * from './location/useDetectCountry';
+export * from './location/useLocation';
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\contexts\AuthContext.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { type User } from '../api/services/auth/auth.types';
+import { tokenStorage } from '../utils/storage/token.storage';
+import { userService } from '../api/services/user/user.service';
+import { authService } from '../api/services/auth/auth.service';
+import { debugLog } from '../utils/debug/LogOverlay';
+import { queryClient } from './QueryClientProvider';
+
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    login: (token: string, user: User) => void;
+    logout: () => void;
+    updateUser: (user: User) => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initialize auth state
+    useEffect(() => {
+        const initAuth = async () => {
+            // Check for token in URL (OAuth redirect)
+            const searchParams = new URLSearchParams(window.location.search);
+            const urlToken = searchParams.get('token') || searchParams.get('access_token');
+            const storedToken = tokenStorage.getToken();
+
+            debugLog.info("AuthContext Init: Checking for token", { urlToken: !!urlToken, storedToken: !!storedToken, rawUrl: window.location.href });
+
+            const token = urlToken || storedToken;
+
+            if (urlToken) {
+                // If token comes from URL, save it and clean URL
+                debugLog.info("AuthContext: Found URL token, saving...", urlToken.substring(0, 10) + "...");
+                tokenStorage.setToken(urlToken);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (token) {
+                try {
+                    debugLog.info("AuthContext: Attempting to fetch profile with token");
+                    const response = await userService.getProfile();
+                    debugLog.info("AuthContext: Profile fetch response", response);
+                    if (response.success && response.data) {
+                        setUser(response.data as unknown as User);
+                    } else {
+                        throw new Error("Profile fetch failed");
+                    }
+                } catch (error) {
+                    debugLog.error("AuthContext: Profile fetch error", error);
+
+                    // Try to refresh token
+                    const refreshToken = tokenStorage.getRefreshToken();
+                    if (refreshToken) {
+                        try {
+                            debugLog.info("AuthContext: Attempting to refresh token...");
+                            const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                            if (refreshResponse.success && refreshResponse.data) {
+                                debugLog.info("AuthContext: Refresh successful");
+                                tokenStorage.setToken(refreshResponse.data.access_token);
+                                if (refreshResponse.data.refresh_token) {
+                                    tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                                }
+                                setUser(refreshResponse.data.user);
+                            } else {
+                                throw new Error("Refresh failed - invalid response");
+                            }
+                        } catch (refreshError) {
+                            debugLog.error("AuthContext: Refresh token failed", refreshError);
+                            tokenStorage.clearAll();
+                            setUser(null);
+                        }
+                    } else {
+                        // No refresh token, clear everything
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                }
+            } else {
+                // Check if we have a refresh token even if no access token
+                const refreshToken = tokenStorage.getRefreshToken();
+                if (refreshToken) {
+                    try {
+                        debugLog.info("AuthContext: No access token, but found refresh token. Attempting refresh...");
+                        const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                        if (refreshResponse.success && refreshResponse.data) {
+                            debugLog.info("AuthContext: Refresh successful");
+                            tokenStorage.setToken(refreshResponse.data.access_token);
+                            if (refreshResponse.data.refresh_token) {
+                                tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                            }
+                            setUser(refreshResponse.data.user);
+                        } else {
+                            throw new Error("Refresh failed - invalid response");
+                        }
+                    } catch (refreshError) {
+                        debugLog.error("AuthContext: Refresh token failed", refreshError);
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                } else {
+                    debugLog.info("AuthContext: No tokens found");
+                    tokenStorage.clearAll();
+                    setUser(null);
+                }
+            }
+            setIsLoading(false);
+        };
+
+        initAuth();
+    }, []);
+
+    const login = (token: string, userData: User) => {
+        tokenStorage.setToken(token);
+        tokenStorage.setUserData(userData);
+        setUser(userData);
+    };
+
+    const logout = async () => {
+        const refreshToken = tokenStorage.getRefreshToken();
+        if (refreshToken) {
+            try {
+                debugLog.info("AuthContext: Logging out from backend...");
+                await authService.logout({ refresh_token: refreshToken });
+            } catch (error) {
+                debugLog.error("AuthContext: Logout backend call failed", error);
+            }
+        } else {
+            debugLog.info("AuthContext: No refresh token found, skipping backend logout");
+        }
+
+        tokenStorage.clearAll();
+        setUser(null);
+        queryClient.removeQueries(); // Clear all data
+        queryClient.clear(); // Clear all cache
+    };
+
+    const updateUser = (userData: User) => {
+        setUser(userData);
+        tokenStorage.setUserData(userData);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, updateUser }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuthContext = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuthContext must be used within an AuthProvider');
+    }
+    return context;
+};
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\pages\auth\SignIn.tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { AlertTriangle } from "lucide-react";
+
+import { Button } from "@/components/shadui/button";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/shadui/form";
+import { Input } from "@/components/shadui/input";
+import { Checkbox } from "@/components/shadui/checkbox";
+import { AuthLayout } from "./components/AuthLayout";
+import { GoogleSignInButton } from "./components/GoogleSignInButton";
+import { PasswordInput } from "./components/PasswordInput";
+import { useLogin } from "@/hooks/auth/useLogin";
+import { debugLog } from "@/utils/debug/LogOverlay";
+
+// Schema with rememberMe as required boolean (not optional)
+const signInSchema = z.object({
+    email: z.string().email({ message: "Please enter a valid email address." }),
+    password: z.string().min(1, { message: "Password is required." }),
+    rememberMe: z.boolean(),
+});
+
+type SignInFormValues = z.infer<typeof signInSchema>;
+
+export default function SignIn() {
+    const navigate = useNavigate();
+    const { mutate: login, isPending, error } = useLogin();
+
+    const form = useForm<SignInFormValues>({
+        resolver: zodResolver(signInSchema),
+        defaultValues: {
+            email: "",
+            password: "",
+            rememberMe: false,
+        },
+    });
+
+    function onSubmit(values: SignInFormValues) {
+        login(
+            {
+                email: values.email,
+                password: values.password,
+                remember_me: values.rememberMe,
+            },
+            {
+                onSuccess: () => {
+                    debugLog.info("SignIn: Redirecting to /app");
+                    navigate({ to: "/app" });
+                },
+            }
+        );
+    }
+
+    return (
+        <AuthLayout title="Sign In">
+            <div className="flex flex-col gap-6">
+                <GoogleSignInButton />
+
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-gray-200" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-white px-2 text-gray-500">Or</span>
+                    </div>
+                </div>
+
+                {error && (
+                    <div className="flex items-center gap-3 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <span>{error.message || "Failed to sign in. Please check your credentials."}</span>
+                    </div>
+                )}
+
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                        <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            placeholder="name@example.com"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="password"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Password</FormLabel>
+                                    <FormControl>
+                                        <PasswordInput
+                                            placeholder="Password"
+                                            {...field}
+                                            disabled={isPending}
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <div className="flex items-center justify-between">
+                            <FormField
+                                control={form.control}
+                                name="rememberMe"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                                        <FormControl>
+                                            <Checkbox
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                                disabled={isPending}
+                                            />
+                                        </FormControl>
+                                        <FormLabel className="text-sm font-normal text-gray-600">
+                                            Remember me
+                                        </FormLabel>
+                                    </FormItem>
+                                )}
+                            />
+                            <Link
+                                to="/forgot-password"
+                                className="text-sm font-medium text-royal-violet-base hover:underline"
+                            >
+                                Forgot password?
+                            </Link>
+                        </div>
+
+                        <Button
+                            type="submit"
+                            variant="default"
+                            size="default"
+                            className="w-full"
+                            disabled={isPending}
+                        >
+                            {isPending ? "Signing in..." : "Sign in"}
+                        </Button>
+                    </form>
+                </Form>
+
+                <div className="text-center text-sm text-gray-600">
+                    Don't have an account?{" "}
+                    <Link to="/signup" className="text-royal-violet-base hover:underline">
+                        Create new
+                    </Link>
+                </div>
+            </div>
+        </AuthLayout>
+    );
+}
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\pages\auth\ValidateCode.tsx
+import { useState } from "react";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
+import { AlertTriangle } from "lucide-react";
+
+import { Button } from "@/components/shadui/button";
+import { AuthLayout } from "./components/AuthLayout";
+import { OtpInput } from "./components/OtpInput";
+import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail";
+import { debugLog } from "@/utils/debug/LogOverlay";
+
+export default function ValidateCode() {
+    const navigate = useNavigate();
+    const search = useSearch({ strict: false }) as { email?: string };
+    const email = search.email || "your email";
+    const [otp, setOtp] = useState("");
+
+    const { mutate: verifyEmail, isPending, error } = useVerifyEmail();
+
+    const handleValidate = () => {
+        verifyEmail(
+            {
+                email: email === "your email" ? "" : email,
+                token: otp
+            },
+            {
+                onSuccess: () => {
+                    debugLog.info("ValidateCode: Success, Redirecting to /signin");
+                    // Redirect to login on success
+                    navigate({ to: "/signin" });
+                },
+                onError: (error) => {
+                    debugLog.error("ValidateCode: Failed", error);
+                }
+            }
+        );
+    };
+
+    return (
+        <AuthLayout title="Validate code">
+            <div className="flex flex-col gap-6">
+                <p className="text-gray-600 text-sm">
+                    Enter below the 6-digit code you received on{" "}
+                    <span className="font-medium text-gray-900">{email}</span>
+                </p>
+
+                {error && (
+                    <div className="flex items-center gap-3 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <span>{error.message || "Invalid verification code."}</span>
+                    </div>
+                )}
+
+                <div className="space-y-6">
+                    <OtpInput value={otp} onChange={setOtp} length={6} />
+
+                    <Button
+                        type="button"
+                        className="w-full bg-royal-violet-base hover:bg-royal-violet-dark text-white h-12"
+                        onClick={handleValidate}
+                        disabled={otp.length !== 6 || isPending}
+                    >
+                        {isPending ? "Validating..." : "Validate code"}
+                    </Button>
+                </div>
+
+                <div className="text-center text-sm text-gray-600">
+                    <Link to="/signin" className="text-royal-violet-base hover:underline">
+                        Back to Sign In
+                    </Link>
+                </div>
+            </div>
+        </AuthLayout>
+    );
+}
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\utils\error\error.mapper.ts
+/**
+ * Error Mapper
+ * Transforms various error types into user-friendly messages
+ */
+
+import { ApiError, NetworkError, AuthenticationError, ValidationError } from '../../api/types/error.types';
+import { HTTP_STATUS } from '../../constants/api.constants';
+
+export const errorMapper = {
+    toMessage: (error: unknown): string => {
+        if (typeof error === 'string') return error;
+
+        if (error instanceof NetworkError) {
+            return 'Unable to connect to the server. Please check your internet connection.';
+        }
+
+        if (error instanceof AuthenticationError) {
+            return 'Your session has expired. Please login again.';
+        }
+
+        if (error instanceof ValidationError) {
+            // Return the first validation error message if available
+            if (error.errors) {
+                const firstField = Object.keys(error.errors)[0];
+                if (firstField && error.errors[firstField]?.length > 0) {
+                    return error.errors[firstField][0];
+                }
+            }
+            return error.message || 'Please check your input.';
+        }
+
+        if (error instanceof ApiError) {
+            if (error.code === HTTP_STATUS.INTERNAL_SERVER_ERROR) {
+                return 'Something went wrong on our end. Please try again later.';
+            }
+            return error.message;
+        }
+
+        if (error instanceof Error) {
+            return error.message;
+        }
+
+        return 'An unexpected error occurred.';
+    }
+};
+
+
+
+

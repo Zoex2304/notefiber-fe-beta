@@ -1,0 +1,10 @@
+src/api/services/auth/auth.service.ts
+src/api/services/auth/auth.types.ts
+src/api/services/auth/auth.schemas.ts
+src/api/config/endpoints.ts
+src/hooks/auth/useLogin.ts
+src/hooks/index.ts
+src/contexts/AuthContext.tsx
+src/pages/auth/SignIn.tsx
+src/pages/auth/ValidateCode.tsx
+src/utils/error/error.mapper.ts

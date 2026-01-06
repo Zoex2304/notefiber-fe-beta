@@ -1,0 +1,112 @@
+@startuml Design System - NoteFiber Frontend
+
+!define RECTANGLE class
+
+skinparam backgroundColor #FAFAFA
+skinparam defaultFontName Helvetica
+skinparam defaultFontSize 12
+
+skinparam rectangle {
+    BackgroundColor #FFFFFF
+    BorderColor #D8D8DB
+    RoundCorner 15
+}
+
+skinparam package {
+    BackgroundColor #F5F6F9
+    BorderColor #7050F0
+    FontColor #060B13
+}
+
+skinparam note {
+    BackgroundColor #E0EAFC
+    BorderColor #7050F0
+}
+
+title **NoteFiber Frontend Design System**\n
+
+' ==================== CONFIGURATION FILES ====================
+package "Configuration Files" as config #E0EAFC {
+    rectangle "**tailwind.config.js**\n---\nColor tokens\nTypography scale\nAnimations\nGradients" as tailwind
+    
+    rectangle "**index.css**\n---\nCSS Variables\nLight/Dark mode\nProse styles" as indexcss
+    
+    rectangle "**fonts.css**\n---\nNacelle font-face\n16 weight variants" as fontscss
+    
+    rectangle "**lib/utils.ts**\n---\ncn() function\nClass merging" as utils
+}
+
+' ==================== TYPOGRAPHY ====================
+package "Typography System" as typography #FAFAFA {
+    rectangle "**Primary Font**\n---\nNacelle\nWeights: 100-900\nNormal + Italic" as font
+    
+    rectangle "**Display Headings**\n---\nH1: 61px / 85.4px\nH2: 49px / 68.6px\nH3: 39px / 54.6px\nH4: 31px / 43.4px\nH5: 25px / 35px" as headings
+    
+    rectangle "**Body Text**\n---\nbody-1: 20px\nbody-base: 16px\nbody-3: 13px\nbody-4: 11px\nbody-5: 10.5px" as body
+    
+    rectangle "**Captions**\n---\ncaption-1: 8px\ncaption-2: 7px\nbutton-text: 14px\noverline: 12px" as captions
+}
+
+' ==================== COLOR SYSTEM ====================
+package "Color System" as colors #FAFAFA {
+    rectangle "**Brand Colors**\n---\n#7050F0 royal-violet-base\n#B7AAEE royal-violet-muted" as brand #7050F0;text:white
+    
+    rectangle "**Semantic Colors**\n---\nprimary / foreground\nsecondary / muted\naccent / destructive\nborder / input / ring" as semantic
+    
+    rectangle "**Custom Colors**\n---\ncustomFont-base: #909090\ncustomFont-dark: #060B13\ncool-grey-1: #E0EAFC\ncool-grey-2: #FAFAFA" as custom
+    
+    rectangle "**Dark Mode**\n---\n.dark class toggle\nFull variable inversion\nSidebar variants" as darkmode
+}
+
+' ==================== GRADIENTS ====================
+package "Gradients" as gradients #FAFAFA {
+    rectangle "**gradient-primary-violet**\n#7050F0 → #B7AAEE\n360deg" as grad1
+    
+    rectangle "**gradient-secondary**\n#7050F0 → #9E8CE8\n0deg" as grad2
+    
+    rectangle "**gradient-purple**\n#7050F0 → #FFFFFF\n360deg" as grad3
+    
+    rectangle "**gradient-pink**\n#FF649A → #FFFFFF\n360deg" as grad4
+}
+
+' ==================== ANIMATIONS ====================
+package "Animations" as animations #FAFAFA {
+    rectangle "**scroll**\n---\n40s linear infinite\nHorizontal marquee" as anim1
+    
+    rectangle "**scroll-y**\n---\n60s linear infinite\nVertical marquee" as anim2
+    
+    rectangle "**accordion**\n---\n0.2s ease-out\nExpand/Collapse" as anim3
+    
+    rectangle "**shimmer**\n---\n2s infinite\nButton hover effect" as anim4
+}
+
+' ==================== SPACING & RADIUS ====================
+package "Spacing & Radius" as spacing #FAFAFA {
+    rectangle "**Container**\n---\ncenter: true\npadding: 2rem\nmax-width: 1400px" as container
+    
+    rectangle "**Border Radius**\n---\nlg: 0.5rem\nmd: 0.375rem\nsm: 0.25rem" as radius
+}
+
+' ==================== RELATIONSHIPS ====================
+tailwind --> font : defines
+tailwind --> headings : defines
+tailwind --> body : defines
+tailwind --> captions : defines
+
+tailwind --> brand : defines
+tailwind --> custom : defines
+tailwind --> gradients : defines
+tailwind --> animations : defines
+
+indexcss --> semantic : CSS Variables
+indexcss --> darkmode : .dark class
+
+fontscss --> font : @font-face
+
+utils ..> tailwind : uses tokens
+
+typography -[hidden]down-> colors
+colors -[hidden]down-> gradients
+gradients -[hidden]down-> animations
+
+@enduml

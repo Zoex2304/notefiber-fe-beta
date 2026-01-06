@@ -1,0 +1,43 @@
+# ROUTING LAYER
+src/main.tsx
+src/routes/__root.tsx
+src/routes/_authenticated.tsx
+src/routes/_authenticated/app.tsx
+src/routes/_authenticated/app.settings.tsx
+
+# PAGE COMPONENT
+src/pages/user/AccountSettings.tsx
+
+# UI COMPONENTS
+src/components/common/AvatarUploader.tsx
+src/components/common/PlanStatusPill.tsx
+src/components/common/ActionTooltip.tsx
+src/components/shadui/form.tsx
+src/components/shadui/button.tsx
+src/components/shadui/input.tsx
+src/components/shadui/alert-dialog.tsx
+
+# HOOKS
+src/hooks/auth/useAuth.ts
+src/hooks/user/useUpdateProfile.ts
+src/hooks/user/useDeleteAccount.ts
+
+# API LAYER
+src/api/client/axios.client.ts
+src/api/config/endpoints.ts
+src/api/services/user/user.service.ts
+src/api/services/user/user.types.ts
+src/api/services/user/user.schemas.ts
+
+# TYPES
+src/api/types/response.types.ts
+src/api/types/error.types.ts
+
+# CONTEXTS
+src/contexts/AuthContext.tsx
+src/contexts/SubscriptionContext.tsx
+src/contexts/QueryClientProvider.tsx
+
+# UTILS
+src/utils/cropImage.ts
+src/lib/utils.ts

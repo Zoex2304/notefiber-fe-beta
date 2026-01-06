@@ -1,0 +1,45 @@
+@keyframes social-proof-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.02);
+    }
+}
+
+@keyframes social-proof-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+.social-proof-toast {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    animation: social-proof-pulse 3s infinite ease-in-out;
+    box-shadow: 0 10px 25px -5px rgba(118, 75, 162, 0.5), 0 8px 10px -6px rgba(118, 75, 162, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.social-proof-toast::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.1) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: skewX(-20deg);
+    animation: social-proof-shimmer 3s infinite;
+}

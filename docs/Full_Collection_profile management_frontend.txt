@@ -1,0 +1,1833 @@
+﻿============================================================
+BULKCOLLECT FULL EXPORT
+Date: 2025-12-24 15:33:41
+Total Files: 28
+Total Size: 0.06 MB
+============================================================
+
+>>> FILE: main.tsx
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { QueryProvider, queryClient } from './contexts/QueryClientProvider';
+import { AuthProvider } from './contexts/AuthContext';
+import { UsageLimitsProvider } from './contexts/UsageLimitsContext';
+import { TooltipProvider } from '@/components/shadui/tooltip';
+import './index.css';
+
+// Import the generated route tree
+import { routeTree } from './routeTree.gen';
+
+// Create the router instance
+const router = createRouter({
+  routeTree,
+  context: {
+    queryClient,
+  },
+  defaultPreload: 'intent',
+  defaultPreloadStaleTime: 0,
+});
+
+// Register the router instance for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router
+  }
+}
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <QueryProvider>
+      <AuthProvider>
+        <UsageLimitsProvider>
+          <TooltipProvider>
+            <RouterProvider router={router} />
+          </TooltipProvider>
+        </UsageLimitsProvider>
+      </AuthProvider>
+    </QueryProvider>
+  </StrictMode>
+);
+
+
+
+>>> FILE: routes\__root.tsx
+import { type QueryClient } from '@tanstack/react-query'
+import { createRootRouteWithContext, Outlet, useRouterState } from '@tanstack/react-router'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
+import { Toaster } from 'sonner'
+import { TopLoader } from '@/components/shadui/TopLoader'
+import { useState, useEffect } from 'react'
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext'
+import { UpgradeModal } from '@/components/modals/UpgradeModal'
+
+import { type User } from '@/api/services/auth/auth.types';
+
+// Define the router context type
+export interface RouterContext {
+    queryClient: QueryClient
+    auth?: {
+        isAuthenticated: boolean
+        user: User | null
+    }
+}
+
+export const Route = createRootRouteWithContext<RouterContext>()({
+    component: RootComponent,
+})
+
+function RootComponent() {
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+    useEffect(() => {
+        const UPGRADE_EVENT = 'show-upgrade-modal';
+        const handleUpgradeTrigger = () => setShowUpgradeModal(true);
+        window.addEventListener(UPGRADE_EVENT, handleUpgradeTrigger);
+        return () => window.removeEventListener(UPGRADE_EVENT, handleUpgradeTrigger);
+    }, []);
+
+    const router = useRouterState();
+    const isAdmin = router.location.pathname.startsWith('/admin');
+
+    return (
+        <SubscriptionProvider>
+            <div className="min-h-screen bg-background font-sans antialiased">
+                <Outlet />
+                <Toaster position="top-right" richColors duration={5000} />
+                <TopLoader color={isAdmin ? "#E5E7EB" : undefined} />
+                <UpgradeModal
+                    isOpen={showUpgradeModal}
+                    onClose={() => setShowUpgradeModal(false)}
+                    featureName="This pro feature"
+                />
+                {import.meta.env.DEV && (
+                    <>
+                        <ReactQueryDevtools buttonPosition="bottom-left" />
+                        <TanStackRouterDevtools position="bottom-right" />
+                    </>
+                )}
+            </div>
+        </SubscriptionProvider>
+    )
+}
+
+
+
+>>> FILE: routes\_authenticated.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { AuthGuard } from '@/components/auth/AuthGuard'
+
+export const Route = createFileRoute('/_authenticated')({
+    component: AuthGuard,
+})
+
+
+
+>>> FILE: routes\_authenticated\app.tsx
+import { createFileRoute, Outlet } from '@tanstack/react-router'
+
+export const Route = createFileRoute('/_authenticated/app')({
+    component: () => <Outlet />,
+})
+
+
+
+>>> FILE: routes\_authenticated\app.settings.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import AccountSettings from '@/pages/user/AccountSettings'
+
+export const Route = createFileRoute('/_authenticated/app/settings')({
+    component: AccountSettings,
+})
+
+
+
+>>> FILE: pages\user\AccountSettings.tsx
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { useUpdateProfile } from "@/hooks/user/useUpdateProfile";
+import { useDeleteAccount } from "@/hooks/user/useDeleteAccount";
+import { useAuth } from "@/hooks/auth/useAuth";
+import { apiClient } from "@/api/client/axios.client";
+import { userService } from "@/api/services/user/user.service";
+import { Button } from "@/components/shadui/button";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
+import {
+    Form,
+    FormControl,
+    FormDescription,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+} from "@/components/shadui/form";
+import { Input } from "@/components/shadui/input";
+import { Separator } from "@/components/shadui/separator";
+import { Loader2, MoveLeft } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
+import { AvatarUploader } from "@/components/common/AvatarUploader";
+import { toast } from "sonner";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/shadui/alert-dialog";
+import { PlanStatusPill } from "@/components/common/PlanStatusPill";
+
+const profileSchema = z.object({
+    full_name: z.string().min(2, {
+        message: "Name must be at least 2 characters.",
+    }),
+});
+
+type ProfileFormValues = z.infer<typeof profileSchema>;
+
+export default function AccountSettings() {
+    const { user, updateUser } = useAuth();
+    const router = useRouter();
+    const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
+    const { mutate: deleteAccount, isPending: isDeleting } = useDeleteAccount();
+
+    const form = useForm<ProfileFormValues>({
+        resolver: zodResolver(profileSchema),
+        defaultValues: {
+            full_name: user?.full_name || "",
+        },
+    });
+
+    function onSubmit(data: ProfileFormValues) {
+        updateProfile(data, {
+            onSuccess: () => {
+                toast.success("Profile updated successfully");
+            },
+            onError: () => {
+                toast.error("Failed to update profile");
+            }
+        });
+    }
+
+    const handleAvatarUpload = async (blob: Blob) => {
+        // Create FormData
+        const formData = new FormData();
+        formData.append('avatar', blob, 'avatar.jpg');
+
+        try {
+            const response = await apiClient.post(`/user/avatar`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                }
+            });
+
+            if (response.data && response.data.user) {
+                // Assume backend returns updated user or we fetch it again
+                // For now, let's fetch profile again to be sure or update if response has it
+                updateUser(response.data.user);
+            } else {
+                // Fallback: fetch profile
+                const profileResponse = await userService.getProfile();
+                if (profileResponse.success && profileResponse.data) {
+                    updateUser(profileResponse.data);
+                }
+            }
+
+            toast.success("Avatar updated successfully");
+
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to upload avatar");
+        }
+    };
+
+    return (
+        <div className="p-10 pb-16 max-w-5xl mx-auto">
+            {/* Header with Back Button outside the main content flow */}
+            <div className="flex items-center gap-4 mb-8">
+                <ActionTooltip label="Go Back">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => router.history.go(-1)}
+                        className="h-10 w-10 shrink-0 rounded-full border-gray-200"
+                    >
+                        <MoveLeft className="h-5 w-5" />
+                    </Button>
+                </ActionTooltip>
+                <div>
+                    <h2 className="text-2xl font-bold tracking-tight">Settings</h2>
+                    <p className="text-muted-foreground">
+                        Manage your account settings and preferences.
+                    </p>
+                </div>
+            </div>
+
+            <Separator className="mb-8" />
+
+            <div className="space-y-6 max-w-4xl ml-14">
+                {/* Profile Section */}
+                <div className="grid gap-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Profile</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Update your personal information.
+                        </p>
+                    </div>
+
+                    <div className="flex justify-center sm:justify-start mb-6">
+                        <AvatarUploader
+                            currentAvatarUrl={user?.avatar_url}
+                            onUpload={handleAvatarUpload}
+                        // isUploading state could be added here
+                        />
+                    </div>
+
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 max-w-xl">
+                            <div className="flex flex-col sm:flex-row gap-4 items-start">
+                                <FormField
+                                    control={form.control}
+                                    name="full_name"
+                                    render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                            <FormLabel>Full Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="Your name" {...field} />
+                                            </FormControl>
+                                            <FormDescription>
+                                                This is the name that will be displayed on your profile and in emails.
+                                            </FormDescription>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <Button type="submit" disabled={isUpdating} className="mt-8">
+                                    {isUpdating && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Update
+                                </Button>
+                            </div>
+                        </form>
+                    </Form>
+                </div>
+
+                <Separator />
+
+                {/* Account Details (ReadOnly) */}
+                <div className="grid gap-4">
+                    <div>
+                        <h3 className="text-lg font-medium">Account Details</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Review your account information.
+                        </p>
+                    </div>
+                    <div className="grid gap-4 max-w-xl text-sm">
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Plan</span>
+                            <div className="col-span-2">
+                                <PlanStatusPill className="w-fit" />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Email</span>
+                            <span className="col-span-2 text-muted-foreground">{user?.email}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">User ID</span>
+                            <span className="col-span-2 text-muted-foreground font-mono text-xs">{user?.id}</span>
+                        </div>
+                        <div className="grid grid-cols-3 items-center">
+                            <span className="font-medium">Role</span>
+                            <span className="col-span-2 text-muted-foreground capitalize">{user?.role}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <Separator />
+
+                {/* Danger Zone */}
+                <div className="grid gap-4">
+                    <div>
+                        <h3 className="text-lg font-medium text-red-600">Danger Zone</h3>
+                        <p className="text-sm text-muted-foreground">
+                            Irreversible actions for your account.
+                        </p>
+                    </div>
+
+                    <div className="rounded-md border border-red-200 p-4 max-w-xl bg-red-50">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h4 className="font-medium text-red-900">Delete Account</h4>
+                                <p className="text-sm text-red-700">
+                                    Permanently delete your account and all contents.
+                                </p>
+                            </div>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="sm">Delete Account</Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete your
+                                            account and remove your data from our servers.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                            onClick={() => deleteAccount()}
+                                            className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+                                            disabled={isDeleting}
+                                        >
+                                            {isDeleting ? "Deleting..." : "Delete Account"}
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+
+
+>>> FILE: components\common\AvatarUploader.tsx
+import { useState, useCallback, useRef } from "react";
+import Cropper from "react-easy-crop";
+import type { Area } from "react-easy-crop";
+import { getCroppedImg } from "@/utils/cropImage";
+import { Button } from "@/components/shadui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import {
+  Camera,
+  Image as ImageIcon,
+  Loader2,
+  ZoomIn,
+  ZoomOut,
+} from "lucide-react";
+import { ActionTooltip } from "./ActionTooltip";
+
+interface AvatarUploaderProps {
+  currentAvatarUrl?: string | null;
+  onUpload: (blob: Blob) => Promise<void>;
+  isUploading?: boolean;
+}
+
+export function AvatarUploader({
+  currentAvatarUrl,
+  onUpload,
+  isUploading = false,
+}: AvatarUploaderProps) {
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        setImageSrc(reader.result as string);
+        setIsDialogOpen(true);
+      });
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const onCropComplete = useCallback(
+    (_croppedArea: Area, croppedAreaPixels: Area) => {
+      setCroppedAreaPixels(croppedAreaPixels);
+    },
+    []
+  );
+
+  const handleClose = () => {
+    setIsDialogOpen(false);
+    setImageSrc(null);
+    setZoom(1);
+    setCrop({ x: 0, y: 0 });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleSave = async () => {
+    if (!imageSrc || !croppedAreaPixels) return;
+
+    try {
+      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      await onUpload(croppedBlob);
+      handleClose();
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative group">
+        <input
+          type="file"
+          accept="image/*"
+          onChange={onFileChange}
+          className="hidden"
+          ref={fileInputRef}
+          aria-label="Upload image file"
+        />
+
+        <div className="h-32 w-32 rounded-full overflow-hidden border-4 border-white shadow-lg bg-gray-100 flex items-center justify-center relative">
+          {currentAvatarUrl ? (
+            <img
+              src={currentAvatarUrl}
+              alt="Avatar"
+              className="h-full w-full object-cover"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center text-gray-400">
+              <ImageIcon className="h-12 w-12 mb-1" />
+            </div>
+          )}
+
+          <div
+            className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Camera className="h-8 w-8 text-white" />
+          </div>
+        </div>
+
+        <ActionTooltip label="Upload new photo">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute bottom-0 right-0 rounded-full shadow-md h-10 w-10 border-2 border-white"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Camera className="h-4 w-4" />
+            )}
+          </Button>
+        </ActionTooltip>
+      </div>
+
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={(open) => !open && handleClose()}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Adjust Photo</DialogTitle>
+            <DialogDescription>
+              Drag to reposition and use the slider to zoom.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="relative w-full h-80 bg-black rounded-md overflow-hidden my-4">
+            {imageSrc && (
+              <Cropper
+                image={imageSrc}
+                crop={crop}
+                zoom={zoom}
+                aspect={1}
+                cropShape="round"
+                showGrid={false}
+                onCropChange={setCrop}
+                onCropComplete={onCropComplete}
+                onZoomChange={setZoom}
+              />
+            )}
+          </div>
+
+          <div className="flex items-center gap-4 px-2 py-2">
+            <ZoomOut className="h-4 w-4 text-gray-500" />
+            <Slider
+              value={[zoom]}
+              min={1}
+              max={3}
+              step={0.1}
+              onValueChange={(value) => setZoom(value[0])}
+              className="flex-1"
+            />
+            <ZoomIn className="h-4 w-4 text-gray-500" />
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave} disabled={isUploading}>
+              {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save & Upload
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+
+
+>>> FILE: components\common\PlanStatusPill.tsx
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
+
+interface PlanStatusPillProps {
+    className?: string;
+}
+
+export function PlanStatusPill({ className }: PlanStatusPillProps) {
+    const { planName, isActive } = useSubscription();
+
+    // Determine styles based on plan status
+    // Assuming "active" generally means a paid plan or valid subscription
+    const isPro = isActive && planName.toLowerCase().includes("pro");
+    const isEnterprise = isActive && planName.toLowerCase().includes("enterprise");
+    const isPaid = isPro || isEnterprise;
+
+    return (
+        <div
+            className={cn(
+                "flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border transition-colors",
+                isPaid
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    : "bg-gray-100 text-gray-600 border-gray-200",
+                className
+            )}
+        >
+            {isPaid && <Sparkles className="w-3 h-3 text-emerald-500 fill-emerald-500" />}
+            <span className="capitalize">{planName}</span>
+        </div>
+    );
+}
+
+
+
+>>> FILE: components\common\ActionTooltip.tsx
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/shadui/tooltip";
+
+interface ActionTooltipProps {
+    label: string;
+    children: React.ReactNode;
+    side?: "top" | "right" | "bottom" | "left";
+    align?: "start" | "center" | "end";
+}
+
+export const ActionTooltip = ({
+    label,
+    children,
+    side,
+    align
+}: ActionTooltipProps) => {
+    return (
+        <Tooltip delayDuration={50}>
+            <TooltipTrigger asChild>
+                {children}
+            </TooltipTrigger>
+            <TooltipContent side={side} align={align}>
+                <p className="font-semibold text-sm capitalize">
+                    {label.toLowerCase()}
+                </p>
+            </TooltipContent>
+        </Tooltip>
+    )
+}
+
+
+
+>>> FILE: components\shadui\form.tsx
+/* eslint-disable react-refresh/only-export-components */
+import * as React from "react"
+import * as LabelPrimitive from "@radix-ui/react-label"
+import { Slot } from "@radix-ui/react-slot"
+import {
+    Controller,
+    type ControllerProps, // Added type-only imports
+    type FieldPath,
+    type FieldValues,
+    FormProvider,
+    useFormContext,
+} from "react-hook-form"
+
+import { cn } from "@/lib/utils"
+import { Label } from "@/components/shadui/label"
+
+const Form = FormProvider
+
+type FormFieldContextValue<
+    TFieldValues extends FieldValues = FieldValues,
+    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> = {
+    name: TName
+}
+
+const FormFieldContext = React.createContext<FormFieldContextValue>(
+    {} as FormFieldContextValue
+)
+
+const FormField = <
+    TFieldValues extends FieldValues = FieldValues,
+    TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({
+    ...props
+}: ControllerProps<TFieldValues, TName>) => {
+    return (
+        <FormFieldContext.Provider value={{ name: props.name }}>
+            <Controller {...props} />
+        </FormFieldContext.Provider>
+    )
+}
+
+const useFormField = () => {
+    const fieldContext = React.useContext(FormFieldContext)
+    const itemContext = React.useContext(FormItemContext)
+    const { getFieldState, formState } = useFormContext()
+
+    const fieldState = getFieldState(fieldContext.name, formState)
+
+    if (!fieldContext) {
+        throw new Error("useFormField should be used within <FormField>")
+    }
+
+    const { id } = itemContext
+
+    return {
+        id,
+        name: fieldContext.name,
+        formItemId: `${id}-form-item`,
+        formDescriptionId: `${id}-form-item-description`,
+        formMessageId: `${id}-form-item-message`,
+        ...fieldState,
+    }
+}
+
+type FormItemContextValue = {
+    id: string
+}
+
+const FormItemContext = React.createContext<FormItemContextValue>(
+    {} as FormItemContextValue
+)
+
+const FormItem = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => {
+    const id = React.useId()
+
+    return (
+        <FormItemContext.Provider value={{ id }}>
+            <div ref={ref} className={cn("space-y-2", className)} {...props} />
+        </FormItemContext.Provider>
+    )
+})
+FormItem.displayName = "FormItem"
+
+const FormLabel = React.forwardRef<
+    React.ElementRef<typeof LabelPrimitive.Root>,
+    React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root>
+>(({ className, ...props }, ref) => {
+    const { error, formItemId } = useFormField()
+
+    return (
+        <Label
+            ref={ref}
+            className={cn(error && "text-red-500", className)}
+            htmlFor={formItemId}
+            {...props}
+        />
+    )
+})
+FormLabel.displayName = "FormLabel"
+
+const FormControl = React.forwardRef<
+    React.ElementRef<typeof Slot>,
+    React.ComponentPropsWithoutRef<typeof Slot>
+>(({ ...props }, ref) => {
+    const { error, formItemId, formDescriptionId, formMessageId } = useFormField()
+
+    return (
+        <Slot
+            ref={ref}
+            id={formItemId}
+            aria-describedby={
+                !error
+                    ? `${formDescriptionId}`
+                    : `${formDescriptionId} ${formMessageId}`
+            }
+            aria-invalid={!!error}
+            {...props}
+        />
+    )
+})
+FormControl.displayName = "FormControl"
+
+const FormDescription = React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, ...props }, ref) => {
+    const { formDescriptionId } = useFormField()
+
+    return (
+        <p
+            ref={ref}
+            id={formDescriptionId}
+            className={cn("text-sm text-gray-500", className)}
+            {...props}
+        />
+    )
+})
+FormDescription.displayName = "FormDescription"
+
+const FormMessage = React.forwardRef<
+    HTMLParagraphElement,
+    React.HTMLAttributes<HTMLParagraphElement>
+>(({ className, children, ...props }, ref) => {
+    const { error, formMessageId } = useFormField()
+    const body = error ? String(error?.message) : children
+
+    if (!body) {
+        return null
+    }
+
+    return (
+        <p
+            ref={ref}
+            id={formMessageId}
+            className={cn("text-sm font-medium text-red-500", className)}
+            {...props}
+        />
+    )
+})
+FormMessage.displayName = "FormMessage"
+
+export {
+    useFormField,
+    Form,
+    FormItem,
+    FormLabel,
+    FormControl,
+    FormDescription,
+    FormMessage,
+    FormField,
+}
+
+
+
+>>> FILE: components\shadui\button.tsx
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
+
+/**
+ * Mendefinisikan semua varian style untuk Button.
+ */
+const buttonVariants = cva(
+  "inline-flex items-center justify-center font-semibold transition-all duration-200 hover:opacity-90 active:scale-95 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        // Varian default dengan gradient
+        default:
+          "bg-gradient-secondary text-white border-[0.368px] border-[#957FEE] shadow-[inset_0_0_2.331px_0_#FFF]",
+
+        destructive:
+          "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+
+        // Outline - border dan text keduanya muted agar selaras
+        outline:
+          "border border-input bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+
+        secondary:
+          "bg-secondary text-secondary-foreground hover:bg-secondary/80",
+
+        ghost: "hover:bg-accent hover:text-accent-foreground",
+
+        link: "text-primary underline-offset-4 hover:underline",
+
+        // Custom outline dengan border primary
+        "custom-outline":
+          "border border-customBorder-primary bg-transparent text-customFont-dark-base hover:bg-gray-100",
+
+        // Glass/Glassmorphism effect
+        glass:
+          "bg-white/30 backdrop-blur-sm border border-white/20 text-customFont-dark-base hover:bg-white/50 rounded-full",
+      },
+      size: {
+        // Size default
+        default:
+          "px-[22.082px] py-[9.814px] rounded-[61.34px] gap-[12.268px] text-[14px] leading-[19.6px]",
+
+        sm: "h-9 rounded-md px-3 text-sm",
+
+        lg: "h-11 rounded-md px-8 text-base",
+
+        icon: "h-10 w-10",
+
+        "custom-sm": "px-4 py-2 rounded-full text-[13px] leading-[18.2px]",
+
+        "custom-lg": "px-8 py-4 rounded-full text-[20px] leading-[28px]",
+
+        // Size untuk toggle pricing
+        toggle:
+          "px-[23.904px] py-[12.871px] rounded-[7px] gap-[9.194px] text-[14px] leading-[19.6px]",
+
+        // Size untuk tombol di dalam pricing card
+        "card-outline":
+          "px-[21.943px] py-[8.777px] rounded-[81.189px] gap-[21.943px] text-[14px] leading-[19.6px] w-full",
+
+        // Size untuk subscribe button
+        subscribe:
+          "px-[22.075px] py-[9.811px] rounded-full gap-[12.264px] text-[14px] leading-[19.6px]",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {}
+
+/**
+ * Komponen Button yang reusable.
+ */
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, children, ...props }, ref) => {
+    return (
+      <button
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      >
+        {children}
+      </button>
+    );
+  }
+);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };
+
+
+>>> FILE: components\shadui\input.tsx
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+// Extends InputHTMLAttributes for future customization
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> { }
+
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+    ({ className, type, ...props }, ref) => {
+        return (
+            <input
+                type={type}
+                className={cn(
+                    "flex h-12 w-full rounded-lg border border-gray-300 bg-transparent px-3 py-2 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-royal-violet-base disabled:cursor-not-allowed disabled:opacity-50",
+                    className
+                )}
+                ref={ref}
+                {...props}
+            />
+        )
+    }
+)
+Input.displayName = "Input"
+
+export { Input }
+
+
+
+>>> FILE: components\shadui\alert-dialog.tsx
+import * as React from "react"
+import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog"
+
+import { cn } from "@/lib/utils"
+import { buttonVariants } from "@/components/shadui/button"
+
+const AlertDialog = AlertDialogPrimitive.Root
+
+const AlertDialogTrigger = AlertDialogPrimitive.Trigger
+
+const AlertDialogPortal = AlertDialogPrimitive.Portal
+
+const AlertDialogOverlay = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPrimitive.Overlay
+    className={cn(
+      "fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+      className
+    )}
+    {...props}
+    ref={ref}
+  />
+))
+AlertDialogOverlay.displayName = AlertDialogPrimitive.Overlay.displayName
+
+const AlertDialogContent = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Content>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPortal>
+    <AlertDialogOverlay />
+    <AlertDialogPrimitive.Content
+      ref={ref}
+      className={cn(
+        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg",
+        className
+      )}
+      {...props}
+    />
+  </AlertDialogPortal>
+))
+AlertDialogContent.displayName = AlertDialogPrimitive.Content.displayName
+
+const AlertDialogHeader = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col space-y-2 text-center sm:text-left",
+      className
+    )}
+    {...props}
+  />
+)
+AlertDialogHeader.displayName = "AlertDialogHeader"
+
+const AlertDialogFooter = ({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLDivElement>) => (
+  <div
+    className={cn(
+      "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
+      className
+    )}
+    {...props}
+  />
+)
+AlertDialogFooter.displayName = "AlertDialogFooter"
+
+const AlertDialogTitle = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Title>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPrimitive.Title
+    ref={ref}
+    className={cn("text-lg font-semibold", className)}
+    {...props}
+  />
+))
+AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName
+
+const AlertDialogDescription = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Description>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPrimitive.Description
+    ref={ref}
+    className={cn("text-sm text-muted-foreground", className)}
+    {...props}
+  />
+))
+AlertDialogDescription.displayName =
+  AlertDialogPrimitive.Description.displayName
+
+const AlertDialogAction = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Action>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPrimitive.Action
+    ref={ref}
+    className={cn(buttonVariants(), className)}
+    {...props}
+  />
+))
+AlertDialogAction.displayName = AlertDialogPrimitive.Action.displayName
+
+const AlertDialogCancel = React.forwardRef<
+  React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
+>(({ className, ...props }, ref) => (
+  <AlertDialogPrimitive.Cancel
+    ref={ref}
+    className={cn(
+      buttonVariants({ variant: "outline" }),
+      "mt-2 sm:mt-0",
+      className
+    )}
+    {...props}
+  />
+))
+AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
+
+export {
+  AlertDialog,
+  AlertDialogPortal,
+  AlertDialogOverlay,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+}
+
+
+
+>>> FILE: hooks\auth\useAuth.ts
+import { useAuthContext } from '../../contexts/AuthContext';
+
+export const useAuth = () => {
+    return useAuthContext();
+};
+
+
+
+>>> FILE: hooks\user\useUpdateProfile.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { userService } from '../../api/services/user/user.service';
+import { type UpdateProfileRequest } from '../../api/services/user/user.types';
+import { type ApiResponse } from '../../api/types/response.types';
+import { type ApiError } from '../../api/types/error.types';
+
+export const useUpdateProfile = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation<ApiResponse<null>, ApiError, UpdateProfileRequest>({
+        mutationFn: (data) => userService.updateProfile(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user', 'profile'] });
+        },
+    });
+};
+
+
+
+>>> FILE: hooks\user\useDeleteAccount.ts
+import { useMutation } from '@tanstack/react-query';
+import { userService } from '../../api/services/user/user.service';
+import { type ApiResponse } from '../../api/types/response.types';
+import { type ApiError } from '../../api/types/error.types';
+import { useAuth } from '../auth/useAuth';
+
+export const useDeleteAccount = () => {
+    const { logout } = useAuth();
+
+    return useMutation<ApiResponse<null>, ApiError>({
+        mutationFn: () => userService.deleteAccount(),
+        onSuccess: () => {
+            logout();
+        },
+    });
+};
+
+
+
+>>> FILE: api\client\axios.client.ts
+import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import { API_CONFIG } from '../config/api.config';
+import { API_CONSTANTS } from '../../constants/api.constants';
+import { tokenStorage } from '../../utils/storage/token.storage';
+
+// Create a custom event for 403 errors
+export const UPGRADE_EVENT = 'TRIGGER_UPGRADE_MODAL';
+
+export const axiosInstance: AxiosInstance = axios.create({
+    baseURL: API_CONFIG.BASE_URL,
+    headers: API_CONFIG.HEADERS,
+    timeout: API_CONSTANTS.TIMEOUT,
+    withCredentials: true, // Important for CORS
+});
+
+// Request Interceptor
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = tokenStorage.getToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response Interceptor
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+        if (error.response?.status === 403) {
+            // Dispatch event to open Upgrade Modal
+            window.dispatchEvent(new Event(UPGRADE_EVENT));
+        }
+        return Promise.reject(error);
+    }
+);
+
+export const apiClient = axiosInstance; // Ensure we export as apiClient if that's what's used
+
+
+
+>>> FILE: api\config\endpoints.ts
+/**
+ * API Endpoints
+ * Maps to the API documentation paths
+ */
+
+export const ENDPOINTS = {
+    AUTH: {
+        REGISTER: '/auth/register',
+        VERIFY_EMAIL: '/auth/verify-email',
+        LOGIN: '/auth/login',
+        LOGOUT: '/auth/logout',
+        REFRESH_TOKEN: '/auth/refresh-token',
+        FORGOT_PASSWORD: '/auth/forgot-password',
+        RESET_PASSWORD: '/auth/reset-password',
+        GOOGLE: '/auth/google',
+        GOOGLE_CALLBACK: '/auth/google/callback',
+    },
+    // Public endpoints (no auth required)
+    PUBLIC: {
+        PLANS: '/plans', // GET /api/plans - for pricing modal
+    },
+    USER: {
+        PROFILE: '/user/profile',
+        ACCOUNT: '/user/account',
+        USAGE_STATUS: '/user/usage-status', // GET /api/user/usage-status
+        // NOTE: Use PAYMENT.STATUS for subscription status (old /user/subscription/status doesn't exist)
+    },
+    LOCATION: {
+        DETECT_COUNTRY: '/location/detect-country',
+        CITIES: '/location/cities',
+        STATES: '/location/states',
+        ZIPCODES: '/location/zipcodes',
+    },
+    PAYMENT: {
+        PLANS: '/payment/plans',
+        CHECKOUT: '/payment/checkout',
+        SUMMARY: '/payment/summary',
+        STATUS: '/payment/status',
+    },
+    REFUND: {
+        REQUEST: '/user/refund/request',
+        LIST: '/user/refunds',
+    },
+} as const;
+
+
+
+>>> FILE: api\services\user\user.service.ts
+import { apiClient } from '../../client';
+import { ENDPOINTS } from '../../config/endpoints';
+import { type ApiResponse } from '../../types/response.types';
+import * as Types from './user.types';
+
+export const userService = {
+    getProfile: async (): Promise<ApiResponse<Types.UserProfile>> => {
+        const response = await apiClient.get<ApiResponse<Types.UserProfile>>(ENDPOINTS.USER.PROFILE);
+        return response.data;
+    },
+
+    updateProfile: async (data: Types.UpdateProfileRequest): Promise<ApiResponse<null>> => {
+        const response = await apiClient.put<ApiResponse<null>>(ENDPOINTS.USER.PROFILE, data);
+        return response.data;
+    },
+
+    deleteAccount: async (): Promise<ApiResponse<null>> => {
+        const response = await apiClient.delete<ApiResponse<null>>(ENDPOINTS.USER.ACCOUNT);
+        return response.data;
+    }
+};
+
+
+
+>>> FILE: api\services\user\user.types.ts
+import { z } from 'zod';
+import * as schemas from './user.schemas';
+
+export type UpdateProfileRequest = z.infer<typeof schemas.updateProfileRequestSchema>;
+export type UserProfile = z.infer<typeof schemas.profileResponseSchema>;
+
+
+
+>>> FILE: api\services\user\user.schemas.ts
+import { z } from 'zod';
+import { userSchema } from '../auth/auth.schemas';
+
+// Update Profile Request
+export const updateProfileRequestSchema = z.object({
+    full_name: z.string().min(2).max(100).optional(),
+});
+
+// Profile Response - Reusing user schema but might have extra fields like ai_daily_usage
+export const profileResponseSchema = userSchema.extend({
+    status: z.string(),
+    ai_daily_usage: z.number(),
+    created_at: z.string(),
+    updated_at: z.string(),
+});
+
+
+
+>>> FILE: api\types\response.types.ts
+/**
+ * API Response Wrappers
+ */
+
+export interface ApiResponse<T = null> {
+    success: boolean;
+    code: number;
+    message: string;
+    data: T;
+}
+
+
+
+>>> FILE: api\types\error.types.ts
+/**
+ * API Error Types
+ */
+
+export interface ApiErrorResponse {
+    success: false;
+    code: number;
+    message: string;
+    errors?: Record<string, string[]>; // Validation errors
+}
+
+export class ApiError extends Error {
+    readonly code: number;
+    readonly errors?: Record<string, string[]>;
+    readonly originalError?: unknown;
+
+    constructor(message: string, code: number = 500, errors?: Record<string, string[]>, originalError?: unknown) {
+        super(message);
+        this.name = 'ApiError';
+        this.code = code;
+        this.errors = errors;
+        this.originalError = originalError;
+    }
+}
+
+export class NetworkError extends ApiError {
+    constructor(originalError?: unknown) {
+        super('Network error occurred. Please check your connection.', 0, undefined, originalError);
+        this.name = 'NetworkError';
+    }
+}
+
+export class AuthenticationError extends ApiError {
+    constructor(message = 'Authentication required', originalError?: unknown) {
+        super(message, 401, undefined, originalError);
+        this.name = 'AuthenticationError';
+    }
+}
+
+export class ValidationError extends ApiError {
+    constructor(message = 'Validation failed', errors?: Record<string, string[]>, originalError?: unknown) {
+        super(message, 422, errors, originalError);
+        this.name = 'ValidationError';
+    }
+}
+
+
+
+>>> FILE: contexts\AuthContext.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { type User } from '../api/services/auth/auth.types';
+import { tokenStorage } from '../utils/storage/token.storage';
+import { userService } from '../api/services/user/user.service';
+import { authService } from '../api/services/auth/auth.service';
+import { debugLog } from '../utils/debug/LogOverlay';
+import { queryClient } from './QueryClientProvider';
+
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    login: (token: string, user: User) => void;
+    logout: () => void;
+    updateUser: (user: User) => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initialize auth state
+    useEffect(() => {
+        const initAuth = async () => {
+            // Check for token in URL (OAuth redirect)
+            const searchParams = new URLSearchParams(window.location.search);
+            const urlToken = searchParams.get('token') || searchParams.get('access_token');
+            const storedToken = tokenStorage.getToken();
+
+            debugLog.info("AuthContext Init: Checking for token", { urlToken: !!urlToken, storedToken: !!storedToken, rawUrl: window.location.href });
+
+            const token = urlToken || storedToken;
+
+            if (urlToken) {
+                // If token comes from URL, save it and clean URL
+                debugLog.info("AuthContext: Found URL token, saving...", urlToken.substring(0, 10) + "...");
+                tokenStorage.setToken(urlToken);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (token) {
+                try {
+                    debugLog.info("AuthContext: Attempting to fetch profile with token");
+                    const response = await userService.getProfile();
+                    debugLog.info("AuthContext: Profile fetch response", response);
+                    if (response.success && response.data) {
+                        setUser(response.data as unknown as User);
+                    } else {
+                        throw new Error("Profile fetch failed");
+                    }
+                } catch (error) {
+                    debugLog.error("AuthContext: Profile fetch error", error);
+
+                    // Try to refresh token
+                    const refreshToken = tokenStorage.getRefreshToken();
+                    if (refreshToken) {
+                        try {
+                            debugLog.info("AuthContext: Attempting to refresh token...");
+                            const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                            if (refreshResponse.success && refreshResponse.data) {
+                                debugLog.info("AuthContext: Refresh successful");
+                                tokenStorage.setToken(refreshResponse.data.access_token);
+                                if (refreshResponse.data.refresh_token) {
+                                    tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                                }
+                                setUser(refreshResponse.data.user);
+                            } else {
+                                throw new Error("Refresh failed - invalid response");
+                            }
+                        } catch (refreshError) {
+                            debugLog.error("AuthContext: Refresh token failed", refreshError);
+                            tokenStorage.clearAll();
+                            setUser(null);
+                        }
+                    } else {
+                        // No refresh token, clear everything
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                }
+            } else {
+                // Check if we have a refresh token even if no access token
+                const refreshToken = tokenStorage.getRefreshToken();
+                if (refreshToken) {
+                    try {
+                        debugLog.info("AuthContext: No access token, but found refresh token. Attempting refresh...");
+                        const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                        if (refreshResponse.success && refreshResponse.data) {
+                            debugLog.info("AuthContext: Refresh successful");
+                            tokenStorage.setToken(refreshResponse.data.access_token);
+                            if (refreshResponse.data.refresh_token) {
+                                tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                            }
+                            setUser(refreshResponse.data.user);
+                        } else {
+                            throw new Error("Refresh failed - invalid response");
+                        }
+                    } catch (refreshError) {
+                        debugLog.error("AuthContext: Refresh token failed", refreshError);
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                } else {
+                    debugLog.info("AuthContext: No tokens found");
+                    tokenStorage.clearAll();
+                    setUser(null);
+                }
+            }
+            setIsLoading(false);
+        };
+
+        initAuth();
+    }, []);
+
+    const login = (token: string, userData: User) => {
+        tokenStorage.setToken(token);
+        tokenStorage.setUserData(userData);
+        setUser(userData);
+    };
+
+    const logout = async () => {
+        const refreshToken = tokenStorage.getRefreshToken();
+        if (refreshToken) {
+            try {
+                debugLog.info("AuthContext: Logging out from backend...");
+                await authService.logout({ refresh_token: refreshToken });
+            } catch (error) {
+                debugLog.error("AuthContext: Logout backend call failed", error);
+            }
+        } else {
+            debugLog.info("AuthContext: No refresh token found, skipping backend logout");
+        }
+
+        tokenStorage.clearAll();
+        setUser(null);
+        queryClient.removeQueries(); // Clear all data
+        queryClient.clear(); // Clear all cache
+    };
+
+    const updateUser = (userData: User) => {
+        setUser(userData);
+        tokenStorage.setUserData(userData);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, updateUser }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuthContext = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuthContext must be used within an AuthProvider');
+    }
+    return context;
+};
+
+
+
+>>> FILE: contexts\SubscriptionContext.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { paymentService } from '@/api/services/payment/payment.service';
+
+interface SubscriptionContextType {
+    isLoading: boolean;
+    planName: string;
+    isActive: boolean;
+    subscriptionId: string | null;
+    features: {
+        ai_chat: boolean;
+        semantic_search: boolean;
+        max_notes: number;
+        daily_token_limit: number;
+    };
+    tokenUsage: {
+        dailyUsed: number;
+        dailyLimit: number;
+        percentage: number;
+    };
+    checkPermission: (feature: 'ai_chat' | 'semantic_search') => boolean;
+    refreshSubscription: () => Promise<void>;
+}
+
+const defaultFeatures = {
+    ai_chat: false,
+    semantic_search: false,
+    max_notes: 5,
+    daily_token_limit: 0,
+};
+
+const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
+
+export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
+    const { isAuthenticated } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
+    const [planName, setPlanName] = useState<string>("Free Plan");
+    const [isActive, setIsActive] = useState<boolean>(false);
+    const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+    const [features, setFeatures] = useState(defaultFeatures);
+    const [tokenUsage, setTokenUsage] = useState({
+        dailyUsed: 0,
+        dailyLimit: 0,
+        percentage: 0,
+    });
+
+    const fetchSubscriptionStatus = async () => {
+        try {
+            const response = await paymentService.getSubscriptionStatus();
+
+            if (response.success && response.data) {
+                setPlanName(response.data.plan_name);
+                setIsActive(response.data.is_active);
+                // Set subscription_id if available from response
+                const responseData = response.data as Record<string, unknown>;
+                console.log('Subscription Response Data:', responseData); // DEBUG LOG
+                const subId = (responseData.subscription_id || responseData.id) as string | undefined;
+                console.log('Extracted subscriptionId:', subId); // DEBUG LOG
+                setSubscriptionId(subId || null);
+
+                const rawFeatures = response.data.features;
+                let normalizedFeatures = { ...defaultFeatures };
+
+                // Handle if features is an Array (list of strings)
+                if (Array.isArray(rawFeatures)) {
+                    console.warn("Features received as array, normalizing...");
+                    const featureList = (rawFeatures as unknown as string[]).map(f => f.toLowerCase());
+
+                    normalizedFeatures.ai_chat = featureList.some(f =>
+                        f === 'ai_chat' ||
+                        f === 'aichat' ||
+                        (f.includes('ai') && f.includes('chat'))
+                    );
+
+                    normalizedFeatures.semantic_search = featureList.some(f =>
+                        f === 'semantic_search' ||
+                        f === 'semanticsearch' ||
+                        f.includes('semantic')
+                    );
+
+                    normalizedFeatures.max_notes = 9999;
+                }
+                // Handle if features is an Object
+                else if (typeof rawFeatures === 'object' && rawFeatures !== null) {
+                    const featureRecord = rawFeatures as Record<string, boolean | number>;
+                    normalizedFeatures = {
+                        ai_chat: !!(featureRecord.ai_chat || featureRecord.aiChat),
+                        semantic_search: !!(featureRecord.semantic_search || featureRecord.semanticSearch),
+                        max_notes: (featureRecord.max_notes as number) || 5,
+                        daily_token_limit: (featureRecord.daily_token_limit as number) || 0,
+                    };
+                }
+
+                setFeatures(normalizedFeatures);
+
+                // Update token usage from response
+                const dailyUsed = (response.data.ai_daily_usage as number) || 0;
+                const dailyLimit = normalizedFeatures.daily_token_limit;
+                const percentage = dailyLimit > 0 ? Math.min((dailyUsed / dailyLimit) * 100, 100) : 0;
+
+                setTokenUsage({
+                    dailyUsed,
+                    dailyLimit,
+                    percentage,
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch subscription status:", error);
+            // Default to free/locked state on error
+            setFeatures(defaultFeatures);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchSubscriptionStatus();
+        } else {
+            setIsLoading(false);
+            setFeatures(defaultFeatures);
+        }
+    }, [isAuthenticated]);
+
+    const checkPermission = (feature: 'ai_chat' | 'semantic_search'): boolean => {
+        return features[feature];
+    };
+
+    return (
+        <SubscriptionContext.Provider
+            value={{
+                isLoading,
+                planName,
+                isActive,
+                subscriptionId,
+                features,
+                tokenUsage,
+                checkPermission,
+                refreshSubscription: fetchSubscriptionStatus
+            }}
+        >
+            {children}
+        </SubscriptionContext.Provider>
+    );
+};
+
+export const useSubscription = () => {
+    const context = useContext(SubscriptionContext);
+    if (context === undefined) {
+        throw new Error('useSubscription must be used within a SubscriptionProvider');
+    }
+    return context;
+};
+
+
+
+>>> FILE: contexts\QueryClientProvider.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type ReactNode } from 'react';
+
+export const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 1,
+            refetchOnWindowFocus: false,
+            staleTime: 5 * 60 * 1000, // 5 minutes
+        },
+    },
+});
+
+interface Props {
+    children: ReactNode;
+}
+
+export const QueryProvider = ({ children }: Props) => {
+    return (
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    );
+};
+
+
+
+>>> FILE: utils\cropImage.ts
+export const createImage = (url: string): Promise<HTMLImageElement> =>
+    new Promise((resolve, reject) => {
+        const image = new Image()
+        image.addEventListener('load', () => resolve(image))
+        image.addEventListener('error', (error) => reject(error))
+        image.setAttribute('crossOrigin', 'anonymous') // Needed to avoid CORS issues on CodeSandbox
+        image.src = url
+    })
+
+export function getRadianAngle(degreeValue: number) {
+    return (degreeValue * Math.PI) / 180
+}
+
+/**
+ * Returns the new bounding area of a rotated rectangle.
+ */
+export function rotateSize(width: number, height: number, rotation: number) {
+    const rotRad = getRadianAngle(rotation)
+
+    return {
+        width:
+            Math.abs(Math.cos(rotRad) * width) + Math.abs(Math.sin(rotRad) * height),
+        height:
+            Math.abs(Math.sin(rotRad) * width) + Math.abs(Math.cos(rotRad) * height),
+    }
+}
+
+/**
+ * This function was adapted from the one in the Readme of https://github.com/DominicTobias/react-image-crop
+ */
+export async function getCroppedImg(
+    imageSrc: string,
+    pixelCrop: { x: number; y: number; width: number; height: number },
+    rotation = 0,
+    flip = { horizontal: false, vertical: false }
+): Promise<Blob> {
+    const image = await createImage(imageSrc)
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+
+    if (!ctx) {
+        throw new Error('No 2d context')
+    }
+
+    const rotRad = getRadianAngle(rotation)
+
+    // calculate bounding box of the rotated image
+    const { width: bBoxWidth, height: bBoxHeight } = rotateSize(
+        image.width,
+        image.height,
+        rotation
+    )
+
+    // set canvas size to match the bounding box
+    canvas.width = bBoxWidth
+    canvas.height = bBoxHeight
+
+    // translate canvas context to a central location to allow rotating and flipping around the center
+    ctx.translate(bBoxWidth / 2, bBoxHeight / 2)
+    ctx.rotate(rotRad)
+    ctx.scale(flip.horizontal ? -1 : 1, flip.vertical ? -1 : 1)
+    ctx.translate(-image.width / 2, -image.height / 2)
+
+    // draw rotated image
+    ctx.drawImage(image, 0, 0)
+
+    const data = ctx.getImageData(
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height
+    )
+
+    // set canvas width to final desired crop size - this will clear existing context
+    canvas.width = pixelCrop.width
+    canvas.height = pixelCrop.height
+
+    // paste generated rotate image at the top left corner
+    ctx.putImageData(data, 0, 0)
+
+    // As Blob
+    return new Promise((resolve, reject) => {
+        canvas.toBlob((blob) => {
+            if (!blob) {
+                reject(new Error('Canvas is empty'))
+                return
+            }
+            resolve(blob)
+        }, 'image/jpeg')
+    })
+}
+
+
+
+>>> FILE: lib\utils.ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+
+
+

@@ -1,0 +1,111 @@
+﻿
+@startuml
+skinparam sequence {
+  ActorBorderColor #333333
+  LifeLineBorderColor #666666
+  LifeLineBackgroundColor #F5F5F5
+  ParticipantBorderColor #333333
+  ParticipantBackgroundColor #E8E8E8
+  ParticipantFontSize 12
+}
+
+title **Frontend Registration Flow**\nUser Registration Process in React Frontend
+header Frontend Registration Sequence
+footer Page 1 of 1
+
+actor "User" as User
+actor "Browser" as Browser
+boundary "React Component" as Component
+control "Zod Validator" as Zod
+control "Password Strength Evaluator" as PasswordStrength
+control "React Hook Form" as RHF
+control "useRegister Hook" as Hook
+control "API Client" as API
+control "Router" as Router
+boundary "Backend API" as Backend
+
+autonumber "<b>[000]"
+
+User -> Browser : Input: Full Name, Email, Password
+activate User
+activate Browser
+
+Browser -> Component : [SignUp.tsx] User Input Formulir
+activate Component
+
+Component -> RHF : Form Submission Trigger\nhandleSubmit(onSubmit)
+activate RHF
+
+RHF -> Zod : Validasi Client-Side (Zod Schema)
+activate Zod
+
+Zod -> Zod : Validate:\n- fullName (min 2 chars)\n- email (valid format)\n- password (min 8 chars)\n- confirmPassword (matches)\n- agreeTerms (checked)
+alt Validation Failed
+    Zod -> Zod : Generate Error Messages
+    Zod -[#990000]-> RHF : Validation Errors
+    RHF -> Component : Display Field Errors
+    Component -> Browser : Show Error Messages
+    Browser -> User : Error Feedback
+    deactivate Zod
+    deactivate RHF
+    deactivate Component
+    deactivate Browser
+    deactivate User
+else Validation Passed
+    Zod -[#006600]-> RHF : Validation Success
+    deactivate Zod
+    
+    RHF -> PasswordStrength : Evaluasi Kekuatan Password
+    activate PasswordStrength
+    PasswordStrength -> PasswordStrength : Analyze:\n- Length (8+)\n- Complexity (upper/lower/digit/symbol)\n- Common Patterns
+    PasswordStrength -> PasswordStrength : Calculate Strength Score
+    PasswordStrength -[#006600]-> Component : Strength Level (Weak/Medium/Strong)
+    deactivate PasswordStrength
+    
+    Component -> Component : Update UI with Strength Indicator
+    
+    RHF -> Component : Form Submission Trigger\nCall onSubmit(values)
+    deactivate RHF
+    
+    Component -[#CC6600]> Hook : Hook Mutation (useRegister)
+    activate Hook
+    
+    Hook -> Hook : Set Loading State (isPending = true)
+    Hook -[#CC3300]> API : API Request ke Backend
+    activate API
+    
+    API -> API : Build Request:\nPOST /api/auth/register\n{\n  full_name: "...",\n  email: "...",\n  password: "..."\n}
+    API -> Backend : HTTP POST Request
+    activate Backend
+    Backend -> Backend : Process Registration\n(Create User, Generate OTP, Send Email)
+    Backend -[#006600]-> API : 200 OK Response\n{\n  success: true,\n  data: {id: "...", email: "..."}\n}
+    deactivate Backend
+    
+    API -[#006600]-> Hook : Response Data
+    deactivate API
+    
+    Hook -> Hook : Set Loading State (isPending = false)
+    Hook -> Hook : Set Success State
+    Hook -[#006600]-> Component : Registration Success
+    
+    Component -[#CC6600]> Router : Redirect ke Halaman Verifikasi Email
+    activate Router
+    
+    Router -> Router : Navigate to /validate-code\nwith email in query params
+    Router -> Browser : Update URL and Component
+    deactivate Router
+    
+    Browser -> User : Show Verification Page\n"Check your email for OTP"
+    deactivate Hook
+    deactivate Component
+    deactivate Browser
+    deactivate User
+end
+
+note over Component, Backend : Error Handling Scenarios
+note over Component, Backend : 1. Email already registered  Show error in form
+note over Component, Backend : 2. Network error  Show retry message
+note over Component, Backend : 3. Validation errors  Highlight fields
+
+@enduml
+

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36 Edg/142.0.0.0" version="28.2.9">
+<diagram name="Activity Diagram" id="notefiber-activity">
+<mxGraphModel dx="2000" dy="2450" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3000" pageHeight="2000" math="0" shadow="0">
+<root>
+<mxCell id="0"/>
+<mxCell id="1" parent="0"/>
+
+<!-- Master Container -->
+<mxCell id="container" value="" style="swimlane;horizontal=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+<mxGeometry x="40" y="40" width="1600" height="1800" as="geometry"/>
+</mxCell>
+
+<!-- User Lane -->
+<mxCell id="lane-user" value="User" style="swimlane;horizontal=0;startSize=30;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;whiteSpace=wrap;html=1;" vertex="1" parent="container">
+<mxGeometry y="0" width="400" height="1800" as="geometry"/>
+</mxCell>
+
+<!-- App Lane -->
+<mxCell id="lane-app" value="Aplikasi" style="swimlane;horizontal=0;startSize=30;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;whiteSpace=wrap;html=1;" vertex="1" parent="container">
+<mxGeometry x="400" y="0" width="800" height="1800" as="geometry"/>
+</mxCell>
+
+<!-- Provider Lane -->
+<mxCell id="lane-provider" value="Provider (OAuth)" style="swimlane;horizontal=0;startSize=30;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333;whiteSpace=wrap;html=1;" vertex="1" parent="container">
+<mxGeometry x="1200" y="0" width="400" height="1800" as="geometry"/>
+</mxCell>
+
+<!-- Start -->
+<mxCell id="start" value="" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed;fillColor=#000000;strokeColor=#000000;" vertex="1" parent="lane-user">
+<mxGeometry x="185" y="60" width="30" height="30" as="geometry"/>
+</mxCell>
+
+<!-- User Actions -->
+<mxCell id="u-open" value="Buka aplikasi" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane-user">
+<mxGeometry x="120" y="120" width="160" height="60" as="geometry"/>
+</mxCell>
+
+<!-- App Responses -->
+<mxCell id="a-show-login" value="Menampilkan halaman login/awal" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="lane-app">
+<mxGeometry x="120" y="120" width="160" height="60" as="geometry"/>
+</mxCell>
+
+<!-- Connections -->
+<mxCell id="e1" value="" style="endArrow=classic;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="container" source="start" target="u-open">
+<mxGeometry width="50" height="50" relative="1" as="geometry"/>
+</mxCell>
+
+<mxCell id="e2" value="" style="endArrow=classic;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="container" source="u-open" target="a-show-login">
+<mxGeometry width="50" height="50" relative="1" as="geometry"/>
+</mxCell>
+
+</root>
+</mxGraphModel>
+</diagram>
+</mxfile>

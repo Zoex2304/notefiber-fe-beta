@@ -1,0 +1,21 @@
+src/main.tsx
+src/routes/__root.tsx
+src/routes/landing.tsx
+src/pages/landingpage/LandingPage.tsx
+src/pages/landingpage/Features.tsx
+src/pages/landingpage/Pricing.tsx
+src/pages/landingpage/AboutUs.tsx
+src/pages/landingpage/Contact.tsx
+src/pages/landingpage/components/organisms/MainContentHeroSectionNavbar.tsx
+src/pages/landingpage/components/organisms/PricingDisplay.tsx
+src/hooks/payment/useUsageStatus.ts  ← (contains usePublicPlans only)
+src/api/client/axios.client.ts
+src/api/config/endpoints.ts
+src/api/services/payment/payment.service.ts
+src/api/services/payment/payment.types.ts
+src/api/types/response.types.ts
+src/api/types/error.types.ts
+src/contexts/QueryClientProvider.tsx
+src/contexts/AuthContext.tsx
+src/contexts/SubscriptionContext.tsx
+src/contexts/UsageLimitsContext.tsx

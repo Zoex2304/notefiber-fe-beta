@@ -1,0 +1,15 @@
+src/pages/MainApp.tsx
+src/components/sidebar.tsx
+src/components/note-editor.tsx
+src/contexts/UsageLimitsContext.tsx
+src/contexts/AuthContext.tsx
+src/contexts/SubscriptionContext.tsx
+src/dto/note.ts
+src/dto/notebook.ts
+src/api/client/axios.client.ts
+src/api/config/endpoints.ts
+src/api/config/api.config.ts
+src/dto/base-response.ts
+src/contexts/QueryClientProvider.tsx
+src/types/note.ts
+src/types/notebook.ts

@@ -1,0 +1,33 @@
+# ROUTING LAYER
+src/routes/__root.tsx
+src/routes/_authenticated.tsx
+src/routes/_authenticated/app.tsx
+src/routes/_authenticated/app.index.tsx
+
+# PRESENTATION LAYER
+src/pages/MainApp.tsx
+src/components/sidebar.tsx
+src/components/note-editor.tsx
+src/components/search-dialog.tsx
+src/components/ai-chat-dialog.tsx
+
+# API CLIENT LAYER
+src/api/client/axios.client.ts
+src/api/config/endpoints.ts
+
+# DTO/TYPES LAYER
+src/dto/note.ts
+src/dto/notebook.ts
+src/dto/base-response.ts
+src/types/note.ts
+src/types/notebook.ts
+
+# STATE MANAGEMENT LAYER
+src/contexts/QueryClientProvider.tsx
+src/contexts/AuthContext.tsx
+src/contexts/SubscriptionContext.tsx
+src/contexts/UsageLimitsContext.tsx
+
+# HOOKS LAYER
+src/hooks/auth/useAuth.ts
+src/contexts/UsageLimitsContext.tsx (for usage checks)

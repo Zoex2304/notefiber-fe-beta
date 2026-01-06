@@ -1,0 +1,175 @@
+﻿
+@startuml Backend_Architecture_Representative
+
+' ========================================
+' ENGINEERING STYLE & LAYOUT CONFIG
+' ========================================
+skinparam linetype ortho
+skinparam monochrome true
+skinparam shadowing false
+skinparam handwritten false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+' SPACE ENHANCEMENT
+skinparam nodesep 120
+skinparam ranksep 100
+skinparam packageStyle rectangle
+
+' COMPONENT STYLING
+skinparam component {
+    BackgroundColor White
+    BorderColor #333333
+    ArrowColor #333333
+    BorderThickness 1.5
+    FontSize 12
+    FontName "Consolas"
+    Padding 10
+}
+
+' Styling untuk komponen representatif (...)
+skinparam component<<More>> {
+    BorderColor #999999
+    FontColor #999999
+    BorderThickness 1
+    BorderStyle dashed
+}
+
+skinparam arrow {
+    FontSize 10
+    FontColor #444444
+    FontStyle italic
+}
+
+skinparam database {
+    BackgroundColor White
+    BorderColor #333333
+}
+
+title **SYSTEM ARCHITECTURE DIAGRAM (High-Level Data Flow)**\nProject: NoteFiber Backend (Go/Fiber)
+
+' ========================================
+' 1. ENTRY POINT & INFRASTRUCTURE
+' ========================================
+package "L1: Entry Point" as L1 {
+    component "cmd/rest/main.go" as Main
+    component "cmd/migrate/main.go" as Migrate
+}
+
+package "L2: Infrastructure & Config" as L2 {
+    component "config.go" as Config
+    component "container.go" as Container
+    note right of Container : Dependency Injection\n(Bootstrap)
+    
+    component "server.go" as Server
+    note right of Server : Fiber App &\nMiddlewares
+}
+
+' ========================================
+' 2. INTERFACE LAYER (CONTROLLERS)
+' ========================================
+package "L3: Interface Layer (Controllers)" as L3 {
+    rectangle "Auth & User" {
+        component "auth_controller" as C_Auth
+        component "user_controller" as C_User
+    }
+    
+    rectangle "Core Features" {
+        component "note_controller" as C_Note
+        component "payment_controller" as C_Pay
+        component "..." as C_More <<More>>
+    }
+}
+
+' ========================================
+' 3. BUSINESS LOGIC LAYER (SERVICES)
+' ========================================
+package "L4: Business Logic (Services)" as L4 {
+    rectangle "Domain Services" {
+        component "auth_service" as S_Auth
+        component "note_service" as S_Note
+        component "payment_service" as S_Pay
+        component "chatbot_service" as S_Chat
+        component "..." as S_More <<More>>
+    }
+}
+
+' ========================================
+' 4. DATA ACCESS LAYER (REPOSITORY)
+' ========================================
+package "L5: Data Access (Repositories)" as L5 {
+    component "UnitOfWork" as UoW
+    note left of UoW : Transaction Manager
+    
+    rectangle "Repositories" {
+        component "UserRepository" as R_User
+        component "NoteRepository" as R_Note
+        component "SubscriptionRepository" as R_Sub
+        component "..." as R_More <<More>>
+    }
+}
+
+' ========================================
+' 5. EXTERNAL PACKAGES & UTILS
+' ========================================
+package "L6: Support & External Pkg" as L6 {
+    component "pkg/chatbot" as Pkg_AI
+    component "pkg/embedding" as Pkg_Embed
+    component "pkg/mailer" as Pkg_Mail
+}
+
+' ========================================
+' 6. PERSISTENCE LAYER
+' ========================================
+database "PostgreSQL\n(PGVector)" as DB
+
+' ========================================
+' RELATIONS (FLOW)
+' ========================================
+
+' --- Bootstrapping Flow ---
+Main -down-> Config : loads
+Main -down-> Container : inits dependencies
+Container -down-> Server : registers routes
+Migrate -down-> DB : schema migration
+
+' --- Request Flow (Controller) ---
+Server -down-> C_Auth : routes /api/auth
+Server -down-> C_Note : routes /api/notes
+Server -down-> C_Pay : routes /api/payment
+
+' --- Logic Flow (Service) ---
+C_Auth -down-> S_Auth : handles logic
+C_Note -down-> S_Note : handles logic
+C_Pay -down-> S_Pay : handles logic
+
+' --- Data Access Flow ---
+S_Auth -down-> UoW : begins tx
+S_Note -down-> UoW : begins tx
+S_Pay -down-> UoW : begins tx
+
+UoW -down-> R_User : provides scope
+UoW -down-> R_Note : provides scope
+UoW -down-> R_Sub : provides scope
+
+' --- External Integrations ---
+S_Chat -left-> Pkg_AI : calls Gemini/Ollama
+S_Note -left-> Pkg_Embed : generates embeddings
+S_Auth -left-> Pkg_Mail : sends OTP
+
+' --- Database Persistence ---
+R_User -down-> DB : GORM query
+R_Note -down-> DB : GORM query
+R_Sub -down-> DB : GORM query
+
+' ========================================
+' LAYOUT HELPERS
+' ========================================
+L1 -[hidden]- L2
+L2 -[hidden]- L3
+L3 -[hidden]- L4
+L4 -[hidden]- L5
+L5 -[hidden]- DB
+
+@enduml
+

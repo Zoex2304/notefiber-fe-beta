@@ -1,0 +1,1750 @@
+﻿============================================================
+BULKCOLLECT FULL EXPORT
+Date: 2025-12-24 16:21:07
+Total Files: 15
+Total Size: 0.06 MB
+============================================================
+
+>>> FILE: MainApp.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { Sidebar } from "@/components/sidebar"; // Updated path
+import { NoteEditor } from "@/components/note-editor"; // Updated path
+import { SearchDialog } from "@/components/search-dialog"; // Updated path
+import { AIChatDialog } from "@/components/ai-chat-dialog"; // Updated path
+import { Button } from "@/components/ui/button"; // Updated path
+import { Plus, FolderPlus, XCircle } from "lucide-react"; // Import XCircle for clear button
+import type { Note } from "@/types/note"; // Updated path
+import type { Notebook } from "@/types/notebook"; // Updated path
+import { TopBar } from "@/components/common/TopBar";
+import { ActionTooltip } from "@/components/common/ActionTooltip";
+import "@/App.css"; // Updated path
+import type { BaseResponse } from "@/dto/base-response"; // Updated path
+import type {
+  MoveNotebookResponse,
+  CreateNotebookRequest,
+  CreateNotebookResponse,
+  GetAllNotebookResponse,
+  MoveNotebookRequest,
+} from "@/dto/notebook"; // Updated path
+import { apiClient } from "@/api/client/axios.client";
+import type {
+  UpdateNoteResponse,
+  CreateNoteRequest,
+  CreateNoteResponse,
+  UpdateNoteRequest,
+  MoveNoteResponse,
+  MoveNoteRequest,
+} from "@/dto/note"; // Updated path
+
+import { UPGRADE_EVENT } from "@/api/client/axios.client";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useUsageLimits } from "@/contexts/UsageLimitsContext";
+
+export default function MainApp() { // Renamed from App to MainApp
+  const { checkPermission } = useSubscription();
+  const { checkCanCreateNotebook, checkCanCreateNote, checkCanUseAiChat, checkCanUseSemanticSearch } = useUsageLimits();
+  const [notebooks, setNotebooks] = useState<Notebook[]>([]);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [selectedNotebook, setSelectedNotebook] = useState<string | null>(null);
+  const [selectedNote, setSelectedNote] = useState<string | null>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [expandedNotebooks, setExpandedNotebooks] = useState<Set<string>>(
+    new Set()
+  );
+  const [isCreatingNote, setIsCreatingNote] = useState(false);
+  const [isCreatingNotebook, setIsCreatingNotebook] = useState(false);
+  const [isProcessingMove, setIsProcessingMove] = useState(false); // State for move operations
+  const [isDeletingNotebook, setIsDeletingNotebook] = useState<string | null>(
+    null
+  ); // State for deleting notebook
+  const [isDeletingNote, setIsDeletingNote] = useState<string | null>(null); // State for deleting note
+
+  const currentNote = notes.find((note) => note.id === selectedNote);
+
+  const fetchAllNotebooks = async () => {
+    const data = await apiClient.get<BaseResponse<GetAllNotebookResponse[]>>(
+      `/notebook/v1`
+    );
+
+    const notebooksData = data.data.data ?? [];
+    setNotebooks(
+      notebooksData.map((notebook) => ({
+        id: notebook.id,
+        name: notebook.name,
+        parentId: notebook.parent_id,
+        createdAt: new Date(notebook.created_at),
+        updatedAt: new Date(notebook.updated_at ?? notebook.created_at),
+      }))
+    );
+
+    const notes = notebooksData.reduce<Note[]>((currentNotes, notebook) => {
+      return [
+        ...currentNotes,
+        ...notebook.notes.map<Note>((n) => ({
+          id: n.id,
+          title: n.title,
+          content: n.content,
+          createdAt: new Date(n.created_at),
+          notebookId: notebook.id,
+          updatedAt: new Date(n.updated_at ?? n.created_at),
+        })),
+      ];
+    }, []);
+    setNotes(notes);
+  };
+
+  useEffect(() => {
+    fetchAllNotebooks();
+  }, []);
+
+  const handleNoteUpdate = async (noteId: string, updates: Partial<Note>) => {
+    const request: UpdateNoteRequest = {
+      title: updates.title ?? "",
+      content: updates.content ?? "",
+    };
+    await apiClient.put<BaseResponse<UpdateNoteResponse>>(
+      `/note/v1/${noteId}`,
+      request
+    );
+
+    await fetchAllNotebooks();
+  };
+
+  const handleNotebookUpdate = () => {
+    fetchAllNotebooks();
+  };
+
+  const handleDeleteNotebook = async (notebookId: string) => {
+    if (isDeletingNotebook === notebookId) return; // Prevent double deletion
+
+    setIsDeletingNotebook(notebookId); // Set loading for this specific notebook
+
+    await apiClient.delete(`/notebook/v1/${notebookId}`);
+
+    await fetchAllNotebooks();
+
+    // Clear selection if deleted
+    if (selectedNotebook === notebookId) {
+      setSelectedNotebook(null);
+      setSelectedNote(null);
+    }
+
+    setIsDeletingNotebook(null); // Clear loading
+  };
+
+  const handleDeleteNote = async (noteId: string) => {
+    if (isDeletingNote === noteId) return; // Prevent double deletion
+
+    setIsDeletingNote(noteId); // Set loading for this specific note
+
+    await apiClient.delete(`/note/v1/${noteId}`);
+
+    await fetchAllNotebooks();
+
+    // Clear selection if deleted
+    if (selectedNote === noteId) {
+      setSelectedNote(null);
+    }
+
+    setIsDeletingNote(null); // Clear loading
+  };
+
+  const getAllChildNotebooks = (parentId: string): string[] => {
+    const children = notebooks.filter((nb) => nb.parentId === parentId);
+    const allIds = [parentId];
+
+    children.forEach((child) => {
+      allIds.push(...getAllChildNotebooks(child.id));
+    });
+
+    return allIds;
+  };
+
+  const handleMoveNote = async (noteId: string, targetNotebookId: string) => {
+    setIsProcessingMove(true); // Start global loading for move
+    await new Promise((resolve) => setTimeout(resolve, 800)); // Dummy delay
+
+    setNotes((prev) =>
+      prev.map((note) =>
+        note.id === noteId
+          ? { ...note, notebookId: targetNotebookId, updatedAt: new Date() }
+          : note
+      )
+    );
+
+    const request: MoveNoteRequest = {
+      notebook_id: targetNotebookId,
+    };
+    await apiClient.put<BaseResponse<MoveNoteResponse>>(
+      `/note/v1/${noteId}/move`,
+      request
+    );
+
+    await fetchAllNotebooks();
+
+    // Auto-expand target notebook
+    setExpandedNotebooks((prev) => new Set([...prev, targetNotebookId]));
+    setIsProcessingMove(false); // End global loading
+  };
+
+  const handleMoveNotebook = async (
+    notebookId: string,
+    targetParentId: string | null
+  ) => {
+    // Prevent moving a notebook into itself or its children
+    const childIds = getAllChildNotebooks(notebookId);
+    if (targetParentId && childIds.includes(targetParentId)) {
+      return;
+    }
+
+    setIsProcessingMove(true); // Start global loading for move
+    await new Promise((resolve) => setTimeout(resolve, 1000)); // Dummy delay
+
+    const request: MoveNotebookRequest = {
+      parent_id: targetParentId,
+    };
+    await apiClient.put<BaseResponse<MoveNotebookResponse>>(
+      `/notebook/v1/${notebookId}/move`,
+      request
+    );
+
+    await fetchAllNotebooks();
+
+    // Auto-expand target parent if it exists
+    if (targetParentId) {
+      setExpandedNotebooks((prev) => new Set([...prev, targetParentId]));
+    }
+    setIsProcessingMove(false); // End global loading
+  };
+
+  const handleCreateNote = async () => {
+    if (!selectedNotebook || isCreatingNote) return;
+
+    // Check usage limit before creating
+    const canCreate = await checkCanCreateNote();
+    if (!canCreate) return; // Modal auto-shows if limit exceeded
+
+    setIsCreatingNote(true);
+
+    const request: CreateNoteRequest = {
+      title: "Untitled Note",
+      content: "# Untitled Note\n\nStart writing...",
+      notebook_id: selectedNotebook,
+    };
+    const res = await apiClient.post<BaseResponse<CreateNoteResponse>>(
+      `/note/v1`,
+      request
+    );
+
+    await fetchAllNotebooks();
+
+    setSelectedNote(res.data.data.id);
+
+    // Auto-expand the notebook when adding a note
+    setExpandedNotebooks((prev) => new Set([...prev, selectedNotebook]));
+
+    setIsCreatingNote(false);
+  };
+
+  const handleCreateNotebook = async () => {
+    if (isCreatingNotebook) return;
+
+    // Check usage limit before creating
+    const canCreate = await checkCanCreateNotebook();
+    if (!canCreate) return; // Modal auto-shows if limit exceeded
+
+    setIsCreatingNotebook(true);
+
+    const request: CreateNotebookRequest = {
+      name: "New Notebook",
+      parent_id: selectedNotebook ?? null,
+    };
+    await apiClient.post<BaseResponse<CreateNotebookResponse>>(
+      `/notebook/v1`,
+      request
+    );
+
+    await fetchAllNotebooks();
+
+    // Auto-expand parent notebook when adding a child notebook
+    if (selectedNotebook) {
+      setExpandedNotebooks((prev) => new Set([...prev, selectedNotebook]));
+    }
+
+    setIsCreatingNotebook(false);
+  };
+
+
+
+  const handleClearSelection = () => {
+    setSelectedNotebook(null);
+    setSelectedNote(null);
+  };
+
+  const handleSearchClick = async () => {
+    // First check daily limit for semantic search
+    const canUse = await checkCanUseSemanticSearch();
+    if (!canUse) return; // Modal auto-shows if limit exceeded
+
+    // Then check if feature is enabled for plan
+    if (checkPermission('semantic_search')) {
+      setSearchOpen(true);
+    } else {
+      window.dispatchEvent(new Event(UPGRADE_EVENT));
+    }
+  };
+
+  const handleChatClick = async () => {
+    // First check daily limit for AI chat
+    const canUse = await checkCanUseAiChat();
+    if (!canUse) return; // Modal auto-shows if limit exceeded
+
+    // Then check if feature is enabled for plan
+    if (checkPermission('ai_chat')) {
+      setChatOpen(true);
+    } else {
+      window.dispatchEvent(new Event(UPGRADE_EVENT));
+    }
+  };
+
+  return (
+    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Global Top Bar */}
+      <TopBar
+        onSearchClick={handleSearchClick}
+        onChatClick={handleChatClick}
+      />
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-80 bg-white border-r border-gray-200 flex flex-col shadow-sm">
+          <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-white to-gray-50">
+            {/* New Note/Notebook Buttons moved here directly */}
+            <div className="flex gap-2 mb-2">
+              <ActionTooltip label="Create Notebook">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateNotebook}
+                  disabled={isCreatingNotebook}
+                  className="flex-1 bg-transparent"
+                >
+                  {isCreatingNotebook ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <FolderPlus className="h-4 w-4 mr-2" />
+                      New Notebook
+                    </>
+                  )}
+                </Button>
+              </ActionTooltip>
+
+              <ActionTooltip label={!selectedNotebook ? "Select a notebook first" : "Create Note"}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCreateNote}
+                  disabled={!selectedNotebook || isCreatingNote}
+                  className="flex-1 bg-transparent"
+                >
+                  {isCreatingNote ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-2"></div>
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Note
+                    </>
+                  )}
+                </Button>
+              </ActionTooltip>
+            </div>
+            {(selectedNotebook || selectedNote) && (
+              <ActionTooltip label="Clear Selection">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleClearSelection}
+                  className="w-full justify-center text-gray-600 hover:bg-gray-100"
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Clear Selection
+                </Button>
+              </ActionTooltip>
+            )}
+          </div>
+
+          <Sidebar
+            notebooks={notebooks}
+            notes={notes}
+            selectedNotebook={selectedNotebook}
+            selectedNote={selectedNote}
+            onNotebookSelect={setSelectedNotebook}
+            onNoteSelect={setSelectedNote}
+            onNotebookUpdate={handleNotebookUpdate}
+            onDeleteNotebook={handleDeleteNotebook}
+            onDeleteNote={handleDeleteNote}
+            onMoveNote={handleMoveNote}
+            onMoveNotebook={handleMoveNotebook}
+            expandedNotebooks={expandedNotebooks}
+            setExpandedNotebooks={setExpandedNotebooks}
+            isProcessingMove={isProcessingMove}
+            isDeletingNotebook={isDeletingNotebook}
+            isDeletingNote={isDeletingNote}
+          />
+        </div>
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col bg-white overflow-x-hidden">
+          {currentNote ? (
+            <NoteEditor note={currentNote} onUpdate={handleNoteUpdate} />
+          ) : (
+            <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
+              <div className="text-center">
+                <div className="text-6xl mb-4">ðŸ“</div>
+                <h2 className="text-xl font-medium mb-2">
+                  Select a note to start editing
+                </h2>
+                <p className="text-sm">
+                  Choose a note from the sidebar or create a new one
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Dialogs */}
+      <SearchDialog
+        open={searchOpen}
+        onOpenChange={setSearchOpen}
+        notes={notes}
+        onNoteSelect={(noteId) => {
+          setSelectedNote(noteId);
+          const note = notes.find((n) => n.id === noteId);
+          if (note) {
+            setSelectedNotebook(note.notebookId);
+          }
+          setSearchOpen(false);
+        }}
+      />
+
+      <AIChatDialog open={chatOpen} onOpenChange={setChatOpen} notes={notes} />
+    </div>
+  );
+}
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\components\sidebar.tsx
+"use client"
+
+
+
+import { useState } from "react"
+import { ChevronRight, ChevronDown, Folder, FolderOpen, FileText, MoreHorizontal, Edit2, Trash2 } from "lucide-react"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./ui/dropdown-menu"
+import { cn } from "../lib/utils"
+import type { Note } from "../types/note"
+import type { Notebook } from "../types/notebook"
+import { apiClient } from "@/api/client/axios.client"
+import type { BaseResponse } from "../dto/base-response"
+import type { UpdateNotebookResponse, UpdateNotebookRequest } from "../dto/notebook"
+import { ActionTooltip } from "@/components/common/ActionTooltip"
+
+interface SidebarProps {
+    notebooks: Notebook[]
+    notes: Note[]
+    selectedNotebook: string | null
+    selectedNote: string | null
+    onNotebookSelect: (notebookId: string) => void
+    onNoteSelect: (noteId: string) => void
+    onNotebookUpdate: (notebookId: string, updates: Partial<Notebook>) => void
+    onDeleteNotebook: (notebookId: string) => void
+    onDeleteNote: (noteId: string) => void
+    onMoveNote: (noteId: string, targetNotebookId: string) => void
+    onMoveNotebook: (notebookId: string, targetParentId: string | null) => void
+    expandedNotebooks: Set<string>
+    setExpandedNotebooks: (expanded: Set<string>) => void
+    isProcessingMove: boolean
+    isDeletingNotebook: string | null // New prop
+    isDeletingNote: string | null // New prop
+}
+
+export function Sidebar({
+    notebooks,
+    notes,
+    selectedNotebook,
+    selectedNote,
+    onNotebookSelect,
+    onNoteSelect,
+    onNotebookUpdate,
+    onDeleteNotebook,
+    onDeleteNote,
+    onMoveNote,
+    onMoveNotebook,
+    expandedNotebooks,
+    setExpandedNotebooks,
+    isProcessingMove,
+    isDeletingNotebook, // Destructure new prop
+    isDeletingNote, // Destructure new prop
+}: SidebarProps) {
+    const [editingNotebook, setEditingNotebook] = useState<string | null>(null)
+    const [editingName, setEditingName] = useState("")
+    const [draggedItem, setDraggedItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
+    console.log(draggedItem); // Temporary usage to bypass unused var check pending full implementation
+    const [dragOverItem, setDragOverItem] = useState<{ type: "notebook" | "note"; id: string } | null>(null)
+    const [isSavingNotebookName, setIsSavingNotebookName] = useState(false)
+
+    const toggleNotebook = (notebookId: string) => {
+        const newExpanded = new Set(expandedNotebooks)
+        if (newExpanded.has(notebookId)) {
+            newExpanded.delete(notebookId)
+        } else {
+            newExpanded.add(notebookId)
+        }
+        setExpandedNotebooks(newExpanded)
+    }
+
+    const buildNotebookTree = (parentId: string | null = null): Notebook[] => {
+        return notebooks.filter((notebook) => notebook.parentId === parentId).sort((a, b) => a.name.localeCompare(b.name))
+    }
+
+    const getNotebookNotes = (notebookId: string): Note[] => {
+        return notes.filter((note) => note.notebookId === notebookId).sort((a, b) => a.title.localeCompare(b.title))
+    }
+
+    const startEditingNotebook = (notebook: Notebook) => {
+        setEditingNotebook(notebook.id)
+        setEditingName(notebook.name)
+    }
+
+    const saveNotebookName = async () => {
+        if (editingNotebook && editingName.trim()) {
+            setIsSavingNotebookName(true) // Start loading
+
+            const request: UpdateNotebookRequest = {
+                name: editingName.trim()
+            }
+            await apiClient.put<BaseResponse<UpdateNotebookResponse>>(
+                `/notebook/v1/${editingNotebook}`,
+                request,
+            )
+
+            onNotebookUpdate(editingNotebook, { name: editingName.trim() })
+            setIsSavingNotebookName(false) // End loading
+        }
+        setEditingNotebook(null)
+        setEditingName("")
+    }
+
+    const cancelEditingNotebook = () => {
+        setEditingNotebook(null)
+        setEditingName("")
+    }
+
+    const handleDragStart = (e: React.DragEvent, type: "notebook" | "note", id: string) => {
+        if (isProcessingMove || isDeletingNotebook || isDeletingNote) {
+            e.preventDefault() // Prevent dragging if another operation is in progress
+            return
+        }
+        e.stopPropagation()
+        setDraggedItem({ type, id })
+        e.dataTransfer.effectAllowed = "move"
+        e.dataTransfer.setData("text/plain", `${type}:${id}`) // Set data for cross-browser compatibility
+    }
+
+    const handleDragOver = (e: React.DragEvent, type: "notebook" | "note", id: string) => {
+        if (isProcessingMove || isDeletingNotebook || isDeletingNote) {
+            e.preventDefault() // Prevent drag over if another operation is in progress
+            return
+        }
+        e.preventDefault()
+        e.stopPropagation()
+        e.dataTransfer.dropEffect = "move"
+        setDragOverItem({ type, id })
+    }
+
+    const handleDragLeave = () => {
+        setDragOverItem(null)
+    }
+
+    const handleDrop = (e: React.DragEvent, targetType: "notebook" | "note", targetId: string) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        if (isProcessingMove || isDeletingNotebook || isDeletingNote) return // Prevent drop if another operation is in progress
+
+        const data = e.dataTransfer.getData("text/plain")
+        if (!data) return
+
+        const [draggedType, draggedId] = data.split(":") as ["notebook" | "note", string]
+
+        if (draggedType === "note" && targetType === "notebook") {
+            onMoveNote(draggedId, targetId)
+        } else if (draggedType === "notebook" && targetType === "notebook") {
+            if (draggedId !== targetId) {
+                onMoveNotebook(draggedId, targetId)
+            }
+        }
+
+        setDraggedItem(null)
+        setDragOverItem(null)
+    }
+
+    const handleDropOnRoot = (e: React.DragEvent) => {
+        e.preventDefault()
+
+        if (isProcessingMove || isDeletingNotebook || isDeletingNote) return // Prevent drop if another operation is in progress
+
+        const data = e.dataTransfer.getData("text/plain")
+        if (!data) return
+
+        const [draggedType, draggedId] = data.split(":") as ["notebook" | "note", string]
+
+        if (draggedType === "notebook") {
+            onMoveNotebook(draggedId, null)
+        }
+
+        setDraggedItem(null)
+        setDragOverItem(null)
+    }
+
+    const renderNotebook = (notebook: Notebook, level = 0) => {
+        const children = buildNotebookTree(notebook.id)
+        const notebookNotes = getNotebookNotes(notebook.id)
+        const isExpanded = expandedNotebooks.has(notebook.id)
+        const isSelected = selectedNotebook === notebook.id
+        const hasChildren = children.length > 0 || notebookNotes.length > 0
+        const isEditing = editingNotebook === notebook.id
+        const isDragOver = dragOverItem?.type === "notebook" && dragOverItem.id === notebook.id
+        const isThisNotebookDeleting = isDeletingNotebook === notebook.id
+
+        return (
+            <div key={notebook.id}>
+                <div
+                    className={cn(
+                        "flex items-center group",
+                        isDragOver && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
+                    )}
+                    draggable={!isEditing && !isProcessingMove && !isThisNotebookDeleting} // Disable drag if editing, move, or deleting
+                    onDragStart={(e) => handleDragStart(e, "notebook", notebook.id)}
+                    onDragOver={(e) => handleDragOver(e, "notebook", notebook.id)}
+                    onDragLeave={handleDragLeave}
+                    onDrop={(e) => handleDrop(e, "notebook", notebook.id)}
+                >
+                    <Button
+                        variant="ghost"
+                        className={cn(
+                            "flex-1 justify-start h-9 px-2 font-normal transition-all duration-200",
+                            isSelected &&
+                            "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-500",
+                            !isSelected && "hover:bg-gray-50 hover:shadow-sm",
+                            level > 0 && "bg-gray-25",
+                        )}
+                        style={{ paddingLeft: `${level * 16 + 8}px` }}
+                        onClick={() => {
+                            if (!isEditing && !isProcessingMove && !isThisNotebookDeleting) {
+                                onNotebookSelect(notebook.id)
+                                if (hasChildren) {
+                                    toggleNotebook(notebook.id)
+                                }
+                            }
+                        }}
+                        disabled={isProcessingMove || isThisNotebookDeleting} // Disable button if move or delete is processing
+                    >
+                        <div className="w-4 flex justify-center mr-1">
+                            {hasChildren &&
+                                (isExpanded ? (
+                                    <ChevronDown className="h-3 w-3 text-gray-600" />
+                                ) : (
+                                    <ChevronRight className="h-3 w-3 text-gray-600" />
+                                ))}
+                        </div>
+                        {isExpanded ? (
+                            <FolderOpen className="h-4 w-4 mr-2 text-blue-600" />
+                        ) : (
+                            <Folder className="h-4 w-4 mr-2 text-blue-600" />
+                        )}
+                        {isEditing ? (
+                            <div className="flex items-center flex-1">
+                                <Input
+                                    value={editingName}
+                                    onChange={(e) => setEditingName(e.target.value)}
+                                    onBlur={saveNotebookName}
+                                    onKeyDown={(e) => {
+                                        e.stopPropagation() // Prevent button click from firing
+                                        if (e.key === "Enter") {
+                                            saveNotebookName()
+                                        } else if (e.key === "Escape") {
+                                            cancelEditingNotebook()
+                                        }
+                                    }}
+                                    className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-blue-500 flex-1"
+                                    autoFocus
+                                    onClick={(e) => e.stopPropagation()} // Prevent button click from firing
+                                    disabled={isSavingNotebookName} // Disable input while saving
+                                />
+                                {isSavingNotebookName && (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 ml-2"></div>
+                                )}
+                            </div>
+                        ) : (
+                            <span className="truncate flex-1 text-left">{notebook.name}</span>
+                        )}
+                    </Button>
+
+                    {!isEditing && (
+                        <DropdownMenu>
+                            <ActionTooltip label="More Options">
+                                <DropdownMenuTrigger asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                        onClick={(e) => e.stopPropagation()} // Prevent button click from firing
+                                        disabled={isProcessingMove || isSavingNotebookName || isThisNotebookDeleting} // Disable dropdown if any operation is processing
+                                    >
+                                        <MoreHorizontal className="h-3 w-3" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                            </ActionTooltip>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        startEditingNotebook(notebook)
+                                    }}
+                                    disabled={isSavingNotebookName || isProcessingMove || isThisNotebookDeleting} // Disable if already saving or other operations
+                                >
+                                    <Edit2 className="h-3 w-3 mr-2" />
+                                    Rename
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    onClick={(e) => {
+                                        e.stopPropagation()
+                                        onDeleteNotebook(notebook.id)
+                                    }}
+                                    className="text-red-600 focus:text-red-600"
+                                    disabled={isProcessingMove || isThisNotebookDeleting} // Disable if move or delete is processing
+                                >
+                                    {isThisNotebookDeleting ? (
+                                        <div className="flex items-center">
+                                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
+                                            Deleting...
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <Trash2 className="h-3 w-3 mr-2" />
+                                            Delete
+                                        </>
+                                    )}
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    )}
+                </div>
+
+                {isExpanded && (
+                    <div className="bg-gradient-to-r from-gray-25 to-transparent">
+                        {/* Render notes first */}
+                        {notebookNotes.map((note) => {
+                            const isDragOverNote = dragOverItem?.type === "note" && dragOverItem.id === note.id
+                            const isThisNoteDeleting = isDeletingNote === note.id
+
+                            return (
+                                <div
+                                    key={note.id}
+                                    className={cn(
+                                        "flex items-center group",
+                                        isDragOverNote && "bg-blue-100 border-2 border-blue-300 border-dashed rounded",
+                                    )}
+                                    draggable={!isProcessingMove && !isThisNoteDeleting} // Disable drag if move or deleting
+                                    onDragStart={(e) => handleDragStart(e, "note", note.id)}
+                                    onDragOver={(e) => handleDragOver(e, "note", note.id)}
+                                    onDragLeave={handleDragLeave}
+                                    onDrop={(e) => handleDrop(e, "note", note.id)}
+                                >
+                                    <Button
+                                        variant="ghost"
+                                        className={cn(
+                                            "flex-1 justify-start h-8 px-2 font-normal transition-all duration-200",
+                                            selectedNote === note.id &&
+                                            "bg-gradient-to-r from-blue-50 to-blue-100 text-blue-800 shadow-sm border-l-2 border-blue-400",
+                                            selectedNote !== note.id && "hover:bg-gray-50 text-gray-700",
+                                        )}
+                                        style={{ paddingLeft: `${(level + 1) * 16 + 8}px` }}
+                                        onClick={() => {
+                                            if (!isProcessingMove && !isThisNoteDeleting) {
+                                                onNoteSelect(note.id)
+                                                onNotebookSelect(notebook.id)
+                                            }
+                                        }}
+                                        disabled={isProcessingMove || isThisNoteDeleting} // Disable button if move or delete is processing
+                                    >
+                                        <div className="w-4 mr-1"></div>
+                                        <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                                        <span className="truncate text-sm flex-1 text-left">{note.title}</span>
+                                    </Button>
+
+                                    <DropdownMenu>
+                                        <ActionTooltip label="More Options">
+                                            <DropdownMenuTrigger asChild>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={(e) => e.stopPropagation()} // Prevent button click from firing
+                                                    disabled={isProcessingMove || isThisNoteDeleting} // Disable dropdown if any operation is processing
+                                                >
+                                                    <MoreHorizontal className="h-3 w-3" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                        </ActionTooltip>
+                                        <DropdownMenuContent align="end">
+                                            <DropdownMenuItem
+                                                onClick={(e) => {
+                                                    e.stopPropagation()
+                                                    onDeleteNote(note.id)
+                                                }}
+                                                className="text-red-600 focus:text-red-600"
+                                                disabled={isProcessingMove || isThisNoteDeleting} // Disable if move or delete is processing
+                                            >
+                                                {isThisNoteDeleting ? (
+                                                    <div className="flex items-center">
+                                                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-red-600 mr-2"></div>
+                                                        Deleting...
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <Trash2 className="h-3 w-3 mr-2" />
+                                                        Delete
+                                                    </>
+                                                )}
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                </div>
+                            )
+                        })}
+
+                        {/* Then render child notebooks */}
+                        {children.map((child) => renderNotebook(child, level + 1))}
+                    </div>
+                )}
+            </div>
+        )
+    }
+
+    const rootNotebooks = buildNotebookTree()
+
+    return (
+        <div
+            className="flex-1 overflow-auto bg-gradient-to-b from-gray-50 to-white"
+            onDragOver={(e) => {
+                if (isProcessingMove || isDeletingNotebook || isDeletingNote) return // Prevent drag over if another operation is in progress
+                e.preventDefault()
+                e.dataTransfer.dropEffect = "move"
+            }}
+            onDrop={(e) => {
+                if (isProcessingMove || isDeletingNotebook || isDeletingNote) return // Prevent drop if another operation is in progress
+                handleDropOnRoot(e)
+            }}
+        >
+            <div className="p-2">
+                <h3 className="text-sm font-semibold text-gray-800 mb-3 px-2 py-1 bg-gray-100 rounded-md">Notebooks & Notes</h3>
+                <div className="space-y-1">{rootNotebooks.map((notebook) => renderNotebook(notebook))}</div>
+            </div>
+        </div>
+    )
+}
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\components\note-editor.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "./ui/button"
+import { Input } from "./ui/input"
+import { Eye, Edit, Save } from "lucide-react"
+import { Editor } from "./organisms/Editor"
+import type { Note } from "../types/note"
+import { formatUpdatedAt } from "../lib/date"
+
+interface NoteEditorProps {
+    note: Note
+    onUpdate: (noteId: string, updates: Partial<Note>) => void
+}
+
+export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
+    const [isPreview, setIsPreview] = useState(false)
+    const [content, setContent] = useState(note.content)
+    const [title, setTitle] = useState(note.title)
+    const [hasChanges, setHasChanges] = useState(false)
+    const [isSaving, setIsSaving] = useState(false)
+
+    useEffect(() => {
+        setContent(note.content)
+        setTitle(note.title)
+        setHasChanges(false)
+    }, [note.id, note.content, note.title])
+
+    useEffect(() => {
+        setHasChanges(content !== note.content || title !== note.title)
+    }, [content, title, note.content, note.title])
+
+    const handleSave = async () => {
+        setIsSaving(true)
+        try {
+            await onUpdate(note.id, { content, title })
+            setHasChanges(false)
+        } finally {
+            setIsSaving(false)
+        }
+    }
+
+
+
+    return (
+        <div className="flex-1 flex flex-col">
+            {/* Header */}
+            <div className="border-b border-gray-200 p-4 bg-white">
+                <div className="flex items-center justify-between mb-3">
+                    <Input
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        className="text-lg font-semibold border-none p-0 h-auto focus-visible:ring-0"
+                        placeholder="Note title..."
+                    />
+                    <div className="flex items-center gap-2">
+                        {hasChanges && (
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={handleSave}
+                                disabled={isSaving}
+                                className="h-8 bg-transparent"
+                            >
+                                <Save className="h-4 w-4 mr-2" />
+                                {isSaving ? 'Saving...' : 'Save'}
+                            </Button>
+                        )}
+                        <Button variant="outline" size="sm" onClick={() => setIsPreview(!isPreview)} className="h-8">
+                            {isPreview ? (
+                                <>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit
+                                </>
+                            ) : (
+                                <>
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    Preview
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                </div>
+                <div className="text-xs text-gray-500">
+                    {formatUpdatedAt(note.updatedAt)}
+                </div>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-hidden flex flex-col">
+                {isPreview ? (
+                    <div className="h-full overflow-hidden flex flex-col bg-white">
+                        <Editor
+                            initialContent={content}
+                            readOnly={true}
+                        />
+                    </div>
+                ) : (
+                    <div className="h-full flex flex-col p-6 bg-white">
+                        <Editor
+                            initialContent={note.content}
+                            onChange={(markdown) => {
+                                setContent(markdown);
+                                setHasChanges(true);
+                            }}
+                        />
+                    </div>
+                )}
+            </div>
+        </div>
+    )
+}
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\contexts\UsageLimitsContext.tsx
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { PricingModal } from '@/components/modals/PricingModal';
+import { useCanUseFeature } from '@/hooks/payment';
+import { useAuthContext } from '@/contexts/AuthContext';
+
+interface LimitExceededInfo {
+    featureName: string;
+    used: number;
+    limit: number;
+    resetsAt?: string;
+}
+
+interface UsageLimitsContextType {
+    // Modal controls
+    showPricingModal: (featureName?: string, limitInfo?: Omit<LimitExceededInfo, 'featureName'>) => void;
+    hidePricingModal: () => void;
+    isPricingModalOpen: boolean;
+
+    // Usage checking functions (with auto-modal on failure)
+    checkCanCreateNotebook: () => Promise<boolean>;
+    checkCanCreateNote: () => Promise<boolean>;
+    checkCanUseAiChat: () => Promise<boolean>;
+    checkCanUseSemanticSearch: () => Promise<boolean>;
+
+    // Raw usage data
+    usage: ReturnType<typeof useCanUseFeature>;
+}
+
+const UsageLimitsContext = createContext<UsageLimitsContextType | undefined>(undefined);
+
+interface UsageLimitsProviderProps {
+    children: ReactNode;
+}
+
+export function UsageLimitsProvider({ children }: UsageLimitsProviderProps) {
+    const { isAuthenticated } = useAuthContext();
+    const [isPricingModalOpen, setIsPricingModalOpen] = useState(false);
+    const [modalFeatureName, setModalFeatureName] = useState<string>('This feature');
+    const [modalLimitInfo, setModalLimitInfo] = useState<Omit<LimitExceededInfo, 'featureName'> | undefined>();
+
+    // Only fetch usage status when user is authenticated
+    const usage = useCanUseFeature({ enabled: isAuthenticated });
+
+    const showPricingModal = useCallback((featureName = 'This feature', limitInfo?: Omit<LimitExceededInfo, 'featureName'>) => {
+        setModalFeatureName(featureName);
+        setModalLimitInfo(limitInfo);
+        setIsPricingModalOpen(true);
+    }, []);
+
+    const hidePricingModal = useCallback(() => {
+        setIsPricingModalOpen(false);
+        setModalLimitInfo(undefined);
+    }, []);
+
+    // Check functions that auto-show modal on failure
+    const checkCanCreateNotebook = useCallback(async () => {
+        const result = await usage.refetch();
+        const freshData = result.data?.data;
+        const canUse = freshData?.storage.notebooks.can_use ?? false;
+        if (!canUse && freshData?.storage?.notebooks) {
+            showPricingModal('notebooks', {
+                used: freshData.storage.notebooks.used,
+                limit: freshData.storage.notebooks.limit,
+            });
+        }
+        return canUse;
+    }, [usage, showPricingModal]);
+
+    const checkCanCreateNote = useCallback(async () => {
+        const result = await usage.refetch();
+        const freshData = result.data?.data;
+        const canUse = freshData?.storage.notes.can_use ?? false;
+        if (!canUse && freshData?.storage?.notes) {
+            showPricingModal('notes per notebook', {
+                used: freshData.storage.notes.used,
+                limit: freshData.storage.notes.limit,
+            });
+        }
+        return canUse;
+    }, [usage, showPricingModal]);
+
+    const checkCanUseAiChat = useCallback(async () => {
+        const result = await usage.refetch();
+        const freshData = result.data?.data;
+        const canUse = freshData?.daily.ai_chat.can_use ?? false;
+        if (!canUse && freshData?.daily?.ai_chat) {
+            showPricingModal('AI chat messages', {
+                used: freshData.daily.ai_chat.used,
+                limit: freshData.daily.ai_chat.limit,
+                resetsAt: freshData.daily.ai_chat.resets_at,
+            });
+        }
+        return canUse;
+    }, [usage, showPricingModal]);
+
+    const checkCanUseSemanticSearch = useCallback(async () => {
+        const result = await usage.refetch();
+        const freshData = result.data?.data;
+        const canUse = freshData?.daily.semantic_search.can_use ?? false;
+        if (!canUse && freshData?.daily?.semantic_search) {
+            showPricingModal('semantic searches', {
+                used: freshData.daily.semantic_search.used,
+                limit: freshData.daily.semantic_search.limit,
+                resetsAt: freshData.daily.semantic_search.resets_at,
+            });
+        }
+        return canUse;
+    }, [usage, showPricingModal]);
+
+    return (
+        <UsageLimitsContext.Provider
+            value={{
+                showPricingModal,
+                hidePricingModal,
+                isPricingModalOpen,
+                checkCanCreateNotebook,
+                checkCanCreateNote,
+                checkCanUseAiChat,
+                checkCanUseSemanticSearch,
+                usage,
+            }}
+        >
+            {children}
+            <PricingModal
+                isOpen={isPricingModalOpen}
+                onClose={hidePricingModal}
+                featureName={modalFeatureName}
+                limitInfo={modalLimitInfo}
+                currentPlanSlug={usage.plan?.slug}
+            />
+        </UsageLimitsContext.Provider>
+    );
+}
+
+export function useUsageLimits() {
+    const context = useContext(UsageLimitsContext);
+    if (context === undefined) {
+        throw new Error('useUsageLimits must be used within a UsageLimitsProvider');
+    }
+    return context;
+}
+
+/**
+ * Helper function to handle 429 limit exceeded errors from API
+ * Use this in your API error handlers
+ */
+export function handleLimitExceededError(
+    error: any,
+    showPricingModal: UsageLimitsContextType['showPricingModal']
+): boolean {
+    // Check if this is a 429 error with limit exceeded data
+    if (error?.response?.status === 429 || error?.code === 429) {
+        const data = error?.response?.data?.data || error?.data;
+        if (data) {
+            const featureName = error?.response?.data?.message || 'Daily limit';
+            showPricingModal(featureName, {
+                used: data.used,
+                limit: data.limit,
+                resetsAt: data.reset_after,
+            });
+            return true;
+        }
+        // Show modal even without detailed data
+        showPricingModal();
+        return true;
+    }
+
+    // Check for 403 forbidden (feature requires upgrade)
+    if (error?.response?.status === 403) {
+        showPricingModal();
+        return true;
+    }
+
+    return false;
+}
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\contexts\AuthContext.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { type User } from '../api/services/auth/auth.types';
+import { tokenStorage } from '../utils/storage/token.storage';
+import { userService } from '../api/services/user/user.service';
+import { authService } from '../api/services/auth/auth.service';
+import { debugLog } from '../utils/debug/LogOverlay';
+import { queryClient } from './QueryClientProvider';
+
+interface AuthContextType {
+    user: User | null;
+    isAuthenticated: boolean;
+    isLoading: boolean;
+    login: (token: string, user: User) => void;
+    logout: () => void;
+    updateUser: (user: User) => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+    const [user, setUser] = useState<User | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Initialize auth state
+    useEffect(() => {
+        const initAuth = async () => {
+            // Check for token in URL (OAuth redirect)
+            const searchParams = new URLSearchParams(window.location.search);
+            const urlToken = searchParams.get('token') || searchParams.get('access_token');
+            const storedToken = tokenStorage.getToken();
+
+            debugLog.info("AuthContext Init: Checking for token", { urlToken: !!urlToken, storedToken: !!storedToken, rawUrl: window.location.href });
+
+            const token = urlToken || storedToken;
+
+            if (urlToken) {
+                // If token comes from URL, save it and clean URL
+                debugLog.info("AuthContext: Found URL token, saving...", urlToken.substring(0, 10) + "...");
+                tokenStorage.setToken(urlToken);
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+
+            if (token) {
+                try {
+                    debugLog.info("AuthContext: Attempting to fetch profile with token");
+                    const response = await userService.getProfile();
+                    debugLog.info("AuthContext: Profile fetch response", response);
+                    if (response.success && response.data) {
+                        setUser(response.data as unknown as User);
+                    } else {
+                        throw new Error("Profile fetch failed");
+                    }
+                } catch (error) {
+                    debugLog.error("AuthContext: Profile fetch error", error);
+
+                    // Try to refresh token
+                    const refreshToken = tokenStorage.getRefreshToken();
+                    if (refreshToken) {
+                        try {
+                            debugLog.info("AuthContext: Attempting to refresh token...");
+                            const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                            if (refreshResponse.success && refreshResponse.data) {
+                                debugLog.info("AuthContext: Refresh successful");
+                                tokenStorage.setToken(refreshResponse.data.access_token);
+                                if (refreshResponse.data.refresh_token) {
+                                    tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                                }
+                                setUser(refreshResponse.data.user);
+                            } else {
+                                throw new Error("Refresh failed - invalid response");
+                            }
+                        } catch (refreshError) {
+                            debugLog.error("AuthContext: Refresh token failed", refreshError);
+                            tokenStorage.clearAll();
+                            setUser(null);
+                        }
+                    } else {
+                        // No refresh token, clear everything
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                }
+            } else {
+                // Check if we have a refresh token even if no access token
+                const refreshToken = tokenStorage.getRefreshToken();
+                if (refreshToken) {
+                    try {
+                        debugLog.info("AuthContext: No access token, but found refresh token. Attempting refresh...");
+                        const refreshResponse = await authService.refreshToken({ refresh_token: refreshToken });
+
+                        if (refreshResponse.success && refreshResponse.data) {
+                            debugLog.info("AuthContext: Refresh successful");
+                            tokenStorage.setToken(refreshResponse.data.access_token);
+                            if (refreshResponse.data.refresh_token) {
+                                tokenStorage.setRefreshToken(refreshResponse.data.refresh_token);
+                            }
+                            setUser(refreshResponse.data.user);
+                        } else {
+                            throw new Error("Refresh failed - invalid response");
+                        }
+                    } catch (refreshError) {
+                        debugLog.error("AuthContext: Refresh token failed", refreshError);
+                        tokenStorage.clearAll();
+                        setUser(null);
+                    }
+                } else {
+                    debugLog.info("AuthContext: No tokens found");
+                    tokenStorage.clearAll();
+                    setUser(null);
+                }
+            }
+            setIsLoading(false);
+        };
+
+        initAuth();
+    }, []);
+
+    const login = (token: string, userData: User) => {
+        tokenStorage.setToken(token);
+        tokenStorage.setUserData(userData);
+        setUser(userData);
+    };
+
+    const logout = async () => {
+        const refreshToken = tokenStorage.getRefreshToken();
+        if (refreshToken) {
+            try {
+                debugLog.info("AuthContext: Logging out from backend...");
+                await authService.logout({ refresh_token: refreshToken });
+            } catch (error) {
+                debugLog.error("AuthContext: Logout backend call failed", error);
+            }
+        } else {
+            debugLog.info("AuthContext: No refresh token found, skipping backend logout");
+        }
+
+        tokenStorage.clearAll();
+        setUser(null);
+        queryClient.removeQueries(); // Clear all data
+        queryClient.clear(); // Clear all cache
+    };
+
+    const updateUser = (userData: User) => {
+        setUser(userData);
+        tokenStorage.setUserData(userData);
+    };
+
+    return (
+        <AuthContext.Provider value={{ user, isAuthenticated: !!user, isLoading, login, logout, updateUser }}>
+            {children}
+        </AuthContext.Provider>
+    );
+};
+
+export const useAuthContext = () => {
+    const context = useContext(AuthContext);
+    if (context === undefined) {
+        throw new Error('useAuthContext must be used within an AuthProvider');
+    }
+    return context;
+};
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\contexts\SubscriptionContext.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useAuth } from '@/hooks/auth/useAuth';
+import { paymentService } from '@/api/services/payment/payment.service';
+
+interface SubscriptionContextType {
+    isLoading: boolean;
+    planName: string;
+    isActive: boolean;
+    subscriptionId: string | null;
+    features: {
+        ai_chat: boolean;
+        semantic_search: boolean;
+        max_notes: number;
+        daily_token_limit: number;
+    };
+    tokenUsage: {
+        dailyUsed: number;
+        dailyLimit: number;
+        percentage: number;
+    };
+    checkPermission: (feature: 'ai_chat' | 'semantic_search') => boolean;
+    refreshSubscription: () => Promise<void>;
+}
+
+const defaultFeatures = {
+    ai_chat: false,
+    semantic_search: false,
+    max_notes: 5,
+    daily_token_limit: 0,
+};
+
+const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
+
+export const SubscriptionProvider = ({ children }: { children: ReactNode }) => {
+    const { isAuthenticated } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
+    const [planName, setPlanName] = useState<string>("Free Plan");
+    const [isActive, setIsActive] = useState<boolean>(false);
+    const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+    const [features, setFeatures] = useState(defaultFeatures);
+    const [tokenUsage, setTokenUsage] = useState({
+        dailyUsed: 0,
+        dailyLimit: 0,
+        percentage: 0,
+    });
+
+    const fetchSubscriptionStatus = async () => {
+        try {
+            const response = await paymentService.getSubscriptionStatus();
+
+            if (response.success && response.data) {
+                setPlanName(response.data.plan_name);
+                setIsActive(response.data.is_active);
+                // Set subscription_id if available from response
+                const responseData = response.data as Record<string, unknown>;
+                console.log('Subscription Response Data:', responseData); // DEBUG LOG
+                const subId = (responseData.subscription_id || responseData.id) as string | undefined;
+                console.log('Extracted subscriptionId:', subId); // DEBUG LOG
+                setSubscriptionId(subId || null);
+
+                const rawFeatures = response.data.features;
+                let normalizedFeatures = { ...defaultFeatures };
+
+                // Handle if features is an Array (list of strings)
+                if (Array.isArray(rawFeatures)) {
+                    console.warn("Features received as array, normalizing...");
+                    const featureList = (rawFeatures as unknown as string[]).map(f => f.toLowerCase());
+
+                    normalizedFeatures.ai_chat = featureList.some(f =>
+                        f === 'ai_chat' ||
+                        f === 'aichat' ||
+                        (f.includes('ai') && f.includes('chat'))
+                    );
+
+                    normalizedFeatures.semantic_search = featureList.some(f =>
+                        f === 'semantic_search' ||
+                        f === 'semanticsearch' ||
+                        f.includes('semantic')
+                    );
+
+                    normalizedFeatures.max_notes = 9999;
+                }
+                // Handle if features is an Object
+                else if (typeof rawFeatures === 'object' && rawFeatures !== null) {
+                    const featureRecord = rawFeatures as Record<string, boolean | number>;
+                    normalizedFeatures = {
+                        ai_chat: !!(featureRecord.ai_chat || featureRecord.aiChat),
+                        semantic_search: !!(featureRecord.semantic_search || featureRecord.semanticSearch),
+                        max_notes: (featureRecord.max_notes as number) || 5,
+                        daily_token_limit: (featureRecord.daily_token_limit as number) || 0,
+                    };
+                }
+
+                setFeatures(normalizedFeatures);
+
+                // Update token usage from response
+                const dailyUsed = (response.data.ai_daily_usage as number) || 0;
+                const dailyLimit = normalizedFeatures.daily_token_limit;
+                const percentage = dailyLimit > 0 ? Math.min((dailyUsed / dailyLimit) * 100, 100) : 0;
+
+                setTokenUsage({
+                    dailyUsed,
+                    dailyLimit,
+                    percentage,
+                });
+            }
+        } catch (error) {
+            console.error("Failed to fetch subscription status:", error);
+            // Default to free/locked state on error
+            setFeatures(defaultFeatures);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (isAuthenticated) {
+            fetchSubscriptionStatus();
+        } else {
+            setIsLoading(false);
+            setFeatures(defaultFeatures);
+        }
+    }, [isAuthenticated]);
+
+    const checkPermission = (feature: 'ai_chat' | 'semantic_search'): boolean => {
+        return features[feature];
+    };
+
+    return (
+        <SubscriptionContext.Provider
+            value={{
+                isLoading,
+                planName,
+                isActive,
+                subscriptionId,
+                features,
+                tokenUsage,
+                checkPermission,
+                refreshSubscription: fetchSubscriptionStatus
+            }}
+        >
+            {children}
+        </SubscriptionContext.Provider>
+    );
+};
+
+export const useSubscription = () => {
+    const context = useContext(SubscriptionContext);
+    if (context === undefined) {
+        throw new Error('useSubscription must be used within a SubscriptionProvider');
+    }
+    return context;
+};
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\dto\note.ts
+export interface CreateNoteRequest {
+    title: string;
+    content: string;
+    notebook_id: string;
+}
+
+export interface CreateNoteResponse {
+    id: string;
+}
+
+export interface UpdateNoteRequest {
+    title: string;
+    content: string;
+}
+
+export interface UpdateNoteResponse {
+    id: string;
+}
+
+export interface MoveNoteRequest {
+    notebook_id: string;
+}
+
+export interface MoveNoteResponse {
+    id: string;
+}
+
+export interface GetSemanticSearchResponse {
+    id: string;
+    title: string;
+    content: string;
+    notebook_id: string;
+    created_at: Date;
+    updated_at: Date | null;
+}
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\dto\notebook.ts
+export interface GetAllNotebookResponse {
+    id: string;
+    name: string;
+    parent_id: string | null;
+    created_at: Date;
+    updated_at: Date | null;
+    notes: GetAllNotebookResponseNote[];
+}
+
+export interface GetAllNotebookResponseNote {
+    id: string;
+    title: string;
+    content: string;
+    created_at: Date;
+    updated_at: Date | null;
+}
+
+export interface CreateNotebookRequest {
+    name: string;
+    parent_id: string | null;
+}
+
+export interface CreateNotebookResponse {
+    id: string;
+}
+
+export interface UpdateNotebookRequest {
+    name: string;
+}
+
+export interface UpdateNotebookResponse {
+    id: string;
+}
+
+export interface MoveNotebookRequest {
+    parent_id: string | null;
+}
+
+export interface MoveNotebookResponse {
+    id: string;
+}
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\api\client\axios.client.ts
+import axios, { type AxiosInstance, type AxiosError } from 'axios';
+import { API_CONFIG } from '../config/api.config';
+import { API_CONSTANTS } from '../../constants/api.constants';
+import { tokenStorage } from '../../utils/storage/token.storage';
+
+// Create a custom event for 403 errors
+export const UPGRADE_EVENT = 'TRIGGER_UPGRADE_MODAL';
+
+export const axiosInstance: AxiosInstance = axios.create({
+    baseURL: API_CONFIG.BASE_URL,
+    headers: API_CONFIG.HEADERS,
+    timeout: API_CONSTANTS.TIMEOUT,
+    withCredentials: true, // Important for CORS
+});
+
+// Request Interceptor
+axiosInstance.interceptors.request.use(
+    (config) => {
+        const token = tokenStorage.getToken();
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+
+// Response Interceptor
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error: AxiosError) => {
+        if (error.response?.status === 403) {
+            // Dispatch event to open Upgrade Modal
+            window.dispatchEvent(new Event(UPGRADE_EVENT));
+        }
+        return Promise.reject(error);
+    }
+);
+
+export const apiClient = axiosInstance; // Ensure we export as apiClient if that's what's used
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\api\config\endpoints.ts
+/**
+ * API Endpoints
+ * Maps to the API documentation paths
+ */
+
+export const ENDPOINTS = {
+    AUTH: {
+        REGISTER: '/auth/register',
+        VERIFY_EMAIL: '/auth/verify-email',
+        LOGIN: '/auth/login',
+        LOGOUT: '/auth/logout',
+        REFRESH_TOKEN: '/auth/refresh-token',
+        FORGOT_PASSWORD: '/auth/forgot-password',
+        RESET_PASSWORD: '/auth/reset-password',
+        GOOGLE: '/auth/google',
+        GOOGLE_CALLBACK: '/auth/google/callback',
+    },
+    // Public endpoints (no auth required)
+    PUBLIC: {
+        PLANS: '/plans', // GET /api/plans - for pricing modal
+    },
+    USER: {
+        PROFILE: '/user/profile',
+        ACCOUNT: '/user/account',
+        USAGE_STATUS: '/user/usage-status', // GET /api/user/usage-status
+        // NOTE: Use PAYMENT.STATUS for subscription status (old /user/subscription/status doesn't exist)
+    },
+    LOCATION: {
+        DETECT_COUNTRY: '/location/detect-country',
+        CITIES: '/location/cities',
+        STATES: '/location/states',
+        ZIPCODES: '/location/zipcodes',
+    },
+    PAYMENT: {
+        PLANS: '/payment/plans',
+        CHECKOUT: '/payment/checkout',
+        SUMMARY: '/payment/summary',
+        STATUS: '/payment/status',
+    },
+    REFUND: {
+        REQUEST: '/user/refund/request',
+        LIST: '/user/refunds',
+    },
+} as const;
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\api\config\api.config.ts
+/**
+ * API Configuration
+ * Centralized configuration for API client
+ */
+
+const envUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+const BASE_URL = envUrl.endsWith("/api") ? envUrl : `${envUrl}/api`;
+
+export const API_CONFIG = {
+  BASE_URL,
+  HEADERS: {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  },
+} as const;
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\dto\base-response.ts
+export interface BaseResponse<T> {
+    success: boolean;
+    message: string;
+    code: number;
+    data: T;
+}
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\contexts\QueryClientProvider.tsx
+/* eslint-disable react-refresh/only-export-components */
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { type ReactNode } from 'react';
+
+export const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 1,
+            refetchOnWindowFocus: false,
+            staleTime: 5 * 60 * 1000, // 5 minutes
+        },
+    },
+});
+
+interface Props {
+    children: ReactNode;
+}
+
+export const QueryProvider = ({ children }: Props) => {
+    return (
+        <QueryClientProvider client={queryClient}>
+            {children}
+        </QueryClientProvider>
+    );
+};
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\types\note.ts
+export interface Note {
+    id: string
+    title: string
+    content: string
+    notebookId: string
+    createdAt: Date
+    updatedAt: Date
+}
+
+
+
+>>> FILE: D:\notetaker\notefiber-FE\src\types\notebook.ts
+export interface Notebook {
+    id: string
+    name: string
+    parentId: string | null
+    createdAt: Date
+    updatedAt: Date
+}
+
+
+

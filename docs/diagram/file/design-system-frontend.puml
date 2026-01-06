@@ -1,0 +1,197 @@
+﻿@startuml Frontend_Architecture_Representative
+
+' ========================================
+' ENGINEERING STYLE & LAYOUT CONFIG
+' ========================================
+skinparam linetype ortho
+skinparam monochrome true
+skinparam shadowing false
+skinparam handwritten false
+skinparam defaultFontName "Segoe UI"
+skinparam defaultFontSize 12
+
+' SPACE ENHANCEMENT (Mencegah collision)
+skinparam nodesep 150
+skinparam ranksep 100
+skinparam packageStyle rectangle
+
+' COMPONENT STYLING
+skinparam component {
+    BackgroundColor White
+    BorderColor #333333
+    ArrowColor #333333
+    BorderThickness 1.5
+    FontSize 12
+    FontName "Consolas"
+    Padding 10
+}
+
+' Styling khusus untuk komponen "..." agar terlihat seamless
+skinparam component<<More>> {
+    BorderColor #999999
+    FontColor #999999
+    BorderThickness 1
+    BorderStyle dashed
+}
+
+skinparam arrow {
+    FontSize 10
+    FontColor #444444
+    FontStyle italic
+}
+
+title **SYSTEM ARCHITECTURE DIAGRAM (High-Level Data Flow)**\nProject: NoteFiber Frontend
+
+' ========================================
+' 1. ENTRY & ROUTING
+' ========================================
+package "L1: Entry & Config" as L1 {
+    component "main.tsx" as Main
+    component "App.tsx" as App
+    component "routeTree.gen.ts" as RouteTree
+}
+
+package "L2: Routing Layer" as L2 {
+    component "__root.tsx" as RootRoute
+    
+    rectangle "Route Groups" {
+        rectangle "Auth Routes" as AuthRoutes {
+            component "sign-in.tsx" as R_SignIn
+            component "sign-up.tsx" as R_SignUp
+            component "..." as R_More <<More>>
+        }
+        
+        rectangle "Protected Routes" as ProtRoutes {
+            component "_authenticated.tsx" as AuthGuard
+            component "app.tsx" as R_App
+            component "checkout.tsx" as R_Checkout
+            component "..." as R_ProtMore <<More>>
+        }
+    }
+}
+
+' ========================================
+' 2. VIEW LAYER (PAGES)
+' ========================================
+package "L3: View Layer (Pages)" as L3 {
+    rectangle "Auth Views" {
+        component "SignInPage" as P_SignIn
+        component "SignUpPage" as P_SignUp
+        component "..." as P_AuthMore <<More>>
+    }
+
+    rectangle "Feature Views" {
+        component "MainApp" as P_Main
+        component "CheckoutPage" as P_Checkout
+        component "..." as P_FeatMore <<More>>
+    }
+}
+
+' ========================================
+' 3. LOGIC LAYER (HOOKS & CONTEXT)
+' ========================================
+package "L4: Logic & State" as L4 {
+    rectangle "Global Context" {
+        component "AuthContext" as Ctx_Auth
+        component "SubscriptionContext" as Ctx_Sub
+        component "..." as Ctx_More <<More>>
+    }
+
+    rectangle "Custom Hooks" {
+        component "useAuth()" as Hook_Auth
+        component "useCheckout()" as Hook_Pay
+        component "useProfile()" as Hook_User
+        component "..." as Hook_More <<More>>
+    }
+}
+
+' ========================================
+' 4. COMPONENT LIBRARY
+' ========================================
+package "L5: Component Library" as L5 {
+    rectangle "Atomic/UI" {
+        component "Button/Form/Input" as UI_Base
+        component "..." as UI_More <<More>>
+    }
+    rectangle "Organisms" {
+        component "Editor" as Org_Editor
+        component "Sidebar" as Org_Sidebar
+        component "..." as Org_More <<More>>
+    }
+}
+
+' ========================================
+' 5. DATA LAYER (API)
+' ========================================
+package "L6: API Services" as L6 {
+    component "auth.service" as Svc_Auth
+    component "payment.service" as Svc_Pay
+    component "user.service" as Svc_User
+    component "..." as Svc_More <<More>>
+    
+    component "AxiosClient" as Axios
+}
+
+' ========================================
+' 6. EXTERNAL
+' ========================================
+database "Backend API" as DB
+
+' ========================================
+' RELATIONS (FLOW)
+' ========================================
+
+' --- Entry Flow ---
+Main -down-> App : bootstraps
+App -right-> RouteTree : loads config
+App -down-> RootRoute : renders
+
+' --- Routing Flow ---
+RootRoute -down-> AuthGuard : protects
+RootRoute -down-> R_SignIn : routes to
+AuthGuard -down-> R_App : allows
+AuthGuard -down-> R_Checkout : allows
+
+' --- Route to Page Mapping ---
+R_SignIn -down-> P_SignIn : renders
+R_SignUp -down-> P_SignUp : renders
+R_App -down-> P_Main : renders
+R_Checkout -down-> P_Checkout : renders
+
+' --- Page Logic Dependencies ---
+P_SignIn -down-> Hook_Auth : invokes login
+P_Main -down-> Hook_User : fetches profile
+P_Checkout -down-> Hook_Pay : initiates transaction
+
+' --- UI Composition ---
+P_Main -right-> Org_Editor : composes
+P_Main -right-> Org_Sidebar : composes
+P_SignIn -right-> UI_Base : uses
+
+' --- Logic to Context ---
+Hook_Auth -down-> Ctx_Auth : updates state
+Hook_Pay -down-> Ctx_Sub : checks limits
+
+' --- Logic to Service ---
+Hook_Auth -down-> Svc_Auth : requests
+Hook_Pay -down-> Svc_Pay : requests
+Hook_User -down-> Svc_User : requests
+
+' --- Service to Network ---
+Svc_Auth -down-> Axios : POST /auth
+Svc_Pay -down-> Axios : POST /pay
+Svc_User -down-> Axios : GET /user
+
+' --- Network to Backend ---
+Axios -down-> DB : HTTP/JSON
+
+' ========================================
+' LAYOUT HELPERS (HIDDEN)
+' ========================================
+' Garis tak terlihat ini memaksa tata letak menjadi lurus (Column alignment)
+L1 -[hidden]- L2
+L2 -[hidden]- L3
+L3 -[hidden]- L4
+L4 -[hidden]- L6
+
+@enduml
