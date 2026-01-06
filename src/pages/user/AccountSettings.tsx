@@ -74,20 +74,20 @@ function UserIdDisplay({ id }: { id: string }) {
     const toggleShow = () => setShowFull(!showFull);
 
     return (
-        <div className="flex items-center gap-1 bg-gray-50 border border-gray-100 rounded-lg px-2 py-0.5 shadow-sm hover:shadow-md transition-shadow">
+        <div className="flex items-center gap-1 bg-muted/50 border border-border rounded-lg px-2 py-0.5 shadow-sm hover:shadow-md transition-shadow">
             <div
-                className="font-mono text-xs text-gray-600 cursor-pointer select-all min-w-[80px]"
+                className="font-mono text-xs text-muted-foreground cursor-pointer select-all min-w-[80px]"
                 onClick={toggleShow}
                 title={showFull ? "Click to hide" : "Click to reveal"}
             >
                 {showFull ? id : `${id.slice(0, 8)}••••`}
             </div>
 
-            <div className="flex items-center border-l border-gray-200 pl-1 ml-1 space-x-0.5">
+            <div className="flex items-center border-l border-border pl-1 ml-1 space-x-0.5">
                 <ActionTooltip label={showFull ? "Hide ID" : "Show ID"}>
                     <button
                         onClick={toggleShow}
-                        className="p-1 hover:bg-gray-200 rounded-md transition-colors text-gray-400 hover:text-gray-700"
+                        className="p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
                     >
                         {showFull ? (
                             <EyeOff className="h-3 w-3" />
@@ -100,7 +100,7 @@ function UserIdDisplay({ id }: { id: string }) {
                 <ActionTooltip label="Copy ID">
                     <button
                         onClick={handleCopy}
-                        className="p-1 hover:bg-gray-200 rounded-md transition-colors text-gray-400 hover:text-gray-700"
+                        className="p-1 hover:bg-muted rounded-md transition-colors text-muted-foreground hover:text-foreground"
                     >
                         {copied ? (
                             <Check className="h-3 w-3 text-green-600" />
@@ -181,7 +181,7 @@ export default function AccountSettings() {
                     <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between gap-6 text-center sm:text-left">
                         {/* Avatar with Ring */}
                         <div className="relative group shrink-0">
-                            <div className="h-32 w-32 sm:h-40 sm:w-40 rounded-full ring-4 ring-white shadow-lg bg-white overflow-hidden flex items-center justify-center">
+                            <div className="h-32 w-32 sm:h-40 sm:w-40 rounded-full ring-4 ring-background shadow-lg bg-background overflow-hidden flex items-center justify-center">
                                 <AvatarUploader
                                     currentAvatarUrl={user?.avatar_url}
                                     onUpload={handleAvatarUpload}
@@ -205,7 +205,7 @@ export default function AccountSettings() {
                     <div className="mt-4 pb-4 space-y-2 text-center sm:text-left">
                         {user ? (
                             <>
-                                <h1 className="text-3xl font-bold text-gray-900 leading-tight">{user.full_name}</h1>
+                                <h1 className="text-3xl font-bold text-foreground leading-tight">{user.full_name}</h1>
                                 <p className="text-muted-foreground font-medium">{user.email}</p>
                             </>
                         ) : (
@@ -219,11 +219,11 @@ export default function AccountSettings() {
                             <PlanStatusPill />
 
                             {/* Divider - only visible if user is loaded to avoid jumping */}
-                            {user && <span className="text-gray-300 hidden sm:inline">|</span>}
+                            {user && <span className="text-muted-foreground hidden sm:inline">|</span>}
 
                             {/* User ID Section */}
                             {user ? (
-                                <div className="flex items-center text-sm font-medium text-gray-500">
+                                <div className="flex items-center text-sm font-medium text-muted-foreground">
                                     <span className="mr-2 font-mono">ID:</span>
                                     <UserIdDisplay id={user.id} />
                                 </div>
@@ -236,7 +236,7 @@ export default function AccountSettings() {
 
                 {/* Tabs Navigation */}
                 <Tabs defaultValue="profile" className="w-full space-y-8">
-                    <TabsList className="w-full sm:w-auto grid grid-cols-3 h-auto p-1 bg-gray-100/80 backdrop-blur-sm rounded-xl">
+                    <TabsList className="w-full sm:w-auto grid grid-cols-3 h-auto p-1 bg-muted/80 backdrop-blur-sm rounded-xl">
                         <TabsTrigger value="profile" className="py-2.5 data-[state=active]:bg-gradient-primary-violet data-[state=active]:text-white data-[state=active]:shadow-md rounded-lg transition-all">
                             <User className="h-4 w-4 mr-2" />
                             Profile
@@ -256,7 +256,7 @@ export default function AccountSettings() {
                         {/* TAB: PROFILE */}
                         <TabsContent value="profile" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
                             {/* ... Profile Form Content ... */}
-                            <Card className="shadow-sm border-gray-100">
+                            <Card className="shadow-sm border-border">
                                 <CardHeader>
                                     <CardTitle>Personal Information</CardTitle>
                                     <CardDescription>
@@ -274,7 +274,7 @@ export default function AccountSettings() {
                                                         <FormLabel>Full Name</FormLabel>
                                                         <FormControl>
                                                             <div className="relative">
-                                                                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                                                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                                                 <Input placeholder="Your full name" {...field} className="pl-10" />
                                                             </div>
                                                         </FormControl>
@@ -287,8 +287,8 @@ export default function AccountSettings() {
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Email</label>
                                                     <div className="relative">
-                                                        <div className="absolute left-3 top-3 h-4 w-4 text-gray-400 flex items-center justify-center">@</div>
-                                                        <Input value={user?.email} disabled className="pl-10 bg-gray-50 text-gray-500" />
+                                                        <div className="absolute left-3 top-3 h-4 w-4 text-muted-foreground flex items-center justify-center">@</div>
+                                                        <Input value={user?.email} disabled className="pl-10 bg-muted text-muted-foreground" />
                                                     </div>
                                                     <p className="text-[0.8rem] text-muted-foreground">Email address cannot be changed.</p>
                                                 </div>
@@ -296,8 +296,8 @@ export default function AccountSettings() {
                                                 <div className="space-y-2">
                                                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">Role</label>
                                                     <div className="relative">
-                                                        <Shield className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                                                        <Input value={user?.role} disabled className="pl-10 capitalize bg-gray-50 text-gray-500" />
+                                                        <Shield className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                                        <Input value={user?.role} disabled className="pl-10 capitalize bg-muted text-muted-foreground" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -325,9 +325,9 @@ export default function AccountSettings() {
 
                         {/* TAB: ACCOUNT */}
                         <TabsContent value="account" className="space-y-6 m-0 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                            <Card className="border-red-100 bg-red-50/30 shadow-none">
+                            <Card className="border-destructive/20 bg-destructive/10 shadow-none">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-red-700 text-lg">
+                                    <CardTitle className="flex items-center gap-2 text-destructive text-lg">
                                         <AlertTriangle className="h-5 w-5" />
                                         Danger Zone
                                     </CardTitle>
@@ -335,8 +335,8 @@ export default function AccountSettings() {
                                 <CardContent>
                                     <div className="flex items-center justify-between">
                                         <div className="space-y-1">
-                                            <h4 className="font-medium text-gray-900">Delete Account</h4>
-                                            <p className="text-sm text-gray-500">Permanently delete your account and all data.</p>
+                                            <h4 className="font-medium text-foreground">Delete Account</h4>
+                                            <p className="text-sm text-muted-foreground">Permanently delete your account and all data.</p>
                                         </div>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
@@ -354,7 +354,7 @@ export default function AccountSettings() {
                                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         onClick={() => deleteAccount()}
-                                                        className="bg-red-600 hover:bg-red-700 disabled:opacity-50"
+                                                        className="bg-destructive hover:bg-destructive/90 disabled:opacity-50"
                                                         disabled={isDeleting}
                                                     >
                                                         {isDeleting ? "Deleting..." : "Delete Account"}

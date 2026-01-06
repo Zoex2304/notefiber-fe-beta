@@ -164,8 +164,8 @@ export function ChatInterface({
             <div className="flex-1 flex flex-col min-h-0 w-full overflow-hidden relative">
                 {/* Session Header */}
                 {activeSessionId && (
-                    <div className="px-4 py-2 border-b border-gray-100 bg-white/50 flex items-center justify-between shrink-0">
-                        <div className="text-xs font-medium text-gray-500 truncate max-w-[200px] flex items-center gap-1.5">
+                    <div className="px-4 py-2 border-b border-border bg-background flex items-center justify-between shrink-0">
+                        <div className="text-xs font-medium text-muted-foreground truncate max-w-[200px] flex items-center gap-1.5">
                             <MessageSquare className="h-3 w-3" />
                             {currentSession?.name || "New Chat"}
                         </div>
@@ -193,7 +193,7 @@ export function ChatInterface({
 
                         {/* Loading State */}
                         {isLoading && (
-                            <div className="flex gap-2 items-center text-gray-400 text-sm py-2">
+                            <div className="flex gap-2 items-center text-muted-foreground text-sm py-2">
                                 <Bot className="h-4 w-4 animate-pulse text-purple-500" />
                                 <PixelLoader />
                             </div>
@@ -216,14 +216,14 @@ export function ChatInterface({
                     onClick={() => scrollToBottom("smooth")}
                     className={cn(
                         "absolute bottom-4 right-4 h-9 w-9 rounded-full shadow-lg transition-all duration-200 z-10",
-                        "bg-white border border-gray-200 hover:bg-gray-50 hover:border-purple-300",
+                        "bg-card border border-border hover:bg-muted hover:border-purple-300",
                         buttonVisible
                             ? "opacity-100 translate-y-0 pointer-events-auto"
                             : "opacity-0 translate-y-2 pointer-events-none"
                     )}
                     aria-label="Scroll to bottom"
                 >
-                    <ArrowDown className="h-4 w-4 text-gray-600" />
+                    <ArrowDown className="h-4 w-4 text-muted-foreground" />
                 </Button>
             </div>
 

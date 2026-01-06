@@ -33,7 +33,7 @@ export function PlanFeaturesSection({
 
     return (
         <div className={cn(
-            "bg-white rounded-xl border border-gray-100 p-6 shadow-sm",
+            "bg-card rounded-xl border border-border p-6 shadow-sm",
             "hover:shadow-md transition-shadow duration-300",
             className
         )}>

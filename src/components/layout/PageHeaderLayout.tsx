@@ -39,18 +39,18 @@ export function PageHeaderLayout({
                         variant="ghost"
                         size="icon"
                         onClick={onBack}
-                        className="h-10 w-10 shrink-0 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                        className="h-10 w-10 shrink-0 rounded-full hover:bg-muted transition-colors duration-200"
                     >
-                        <MoveLeft className="h-5 w-5 text-gray-600" />
+                        <MoveLeft className="h-5 w-5 text-muted-foreground" />
                     </Button>
                 </ActionTooltip>
             )}
             <div className="flex-1">
-                <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+                <h1 className="text-3xl font-bold tracking-tight text-foreground">
                     {title}
                 </h1>
                 {subtitle && (
-                    <p className="text-gray-500 mt-1 text-body-base">
+                    <p className="text-muted-foreground mt-1 text-body-base">
                         {subtitle}
                     </p>
                 )}

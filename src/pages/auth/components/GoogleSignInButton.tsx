@@ -4,7 +4,7 @@ export function GoogleSignInButton() {
   return (
     <Button
       variant="outline"
-      className="w-full h-12 gap-3 text-base font-normal text-gray-700 border-gray-300 hover:bg-gray-50"
+      className="w-full h-12 gap-3 text-base font-normal text-foreground border-border hover:bg-muted"
       type="button"
       onClick={() => {
         // Redirect user to backend Google OAuth endpoint

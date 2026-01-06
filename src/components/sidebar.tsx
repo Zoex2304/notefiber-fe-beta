@@ -249,9 +249,9 @@ export function Sidebar({
                                 className={cn(
                                     "flex-1 justify-start h-9 px-2 font-normal transition-all duration-200 whitespace-nowrap shrink-0",
                                     isSelected &&
-                                    "bg-royal-violet-base/10 text-royal-violet-base shadow-sm border-l-2 border-royal-violet-base", // Updated to royal-violet
-                                    !isSelected && "hover:bg-gray-50 hover:shadow-sm",
-                                    level > 0 && !isSelected && "bg-gray-25",
+                                    "bg-primary/10 text-primary shadow-sm border-l-2 border-primary", // Updated to primary
+                                    !isSelected && "hover:bg-muted hover:shadow-sm",
+                                    level > 0 && !isSelected && "bg-muted/30",
                                 )}
                                 onClick={() => {
                                     if (!isEditing && !isProcessingMove && !isThisNotebookDeleting) {
@@ -272,15 +272,15 @@ export function Sidebar({
                                 <div className="w-4 flex justify-center mr-1">
                                     {hasChildren &&
                                         (isExpanded ? (
-                                            <ChevronDown className="h-3 w-3 text-gray-600" />
+                                            <ChevronDown className="h-3 w-3 text-muted-foreground" />
                                         ) : (
-                                            <ChevronRight className="h-3 w-3 text-gray-600" />
+                                            <ChevronRight className="h-3 w-3 text-muted-foreground" />
                                         ))}
                                 </div>
                                 {isExpanded ? (
-                                    <FolderOpen className="h-4 w-4 mr-2 text-royal-violet-base" /> // Updated icon color
+                                    <FolderOpen className="h-4 w-4 mr-2 text-primary" /> // Updated icon color
                                 ) : (
-                                    <Folder className="h-4 w-4 mr-2 text-royal-violet-base" /> // Updated icon color
+                                    <Folder className="h-4 w-4 mr-2 text-primary" /> // Updated icon color
                                 )}
                                 {isEditing ? (
                                     <div className="flex items-center flex-1">
@@ -296,13 +296,13 @@ export function Sidebar({
                                                     cancelEditingNotebook()
                                                 }
                                             }}
-                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-royal-violet-base flex-1" // Updated focus ring
+                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-primary flex-1" // Updated focus ring
                                             autoFocus
                                             onClick={(e) => e.stopPropagation()}
                                             disabled={isSavingNotebookName}
                                         />
                                         {isSavingNotebookName && (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-royal-violet-base ml-2"></div> // Updated spinner
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary ml-2"></div> // Updated spinner
                                         )}
                                     </div>
                                 ) : (
@@ -352,7 +352,7 @@ export function Sidebar({
                     <CollapsibleContent className="relative">
                         {/* Hierarchical left border line */}
                         <div
-                            className="absolute left-0 top-0 bottom-0 border-l border-gray-200"
+                            className="absolute left-0 top-0 bottom-0 border-l border-border"
                             style={{ marginLeft: `${level * 16 + 16}px` }}
                         />
                         {/* Render notes first */}
@@ -367,7 +367,7 @@ export function Sidebar({
                                         <div
                                             className={cn(
                                                 "flex items-center group min-w-fit",
-                                                isDragOverNote && "bg-royal-violet-base/10 border-2 border-royal-violet-base border-dashed rounded",
+                                                isDragOverNote && "bg-primary/10 border-2 border-primary border-dashed rounded",
                                             )}
                                             style={{ paddingLeft: `${(level + 1) * 16}px` }}
                                             draggable={!isProcessingMove && !isThisNoteDeleting && !isEditingNote}
@@ -379,9 +379,9 @@ export function Sidebar({
                                             <Button
                                                 variant="ghost"
                                                 className={cn(
-                                                    "flex-1 justify-start h-8 px-2 font-normal text-gray-600 transition-all duration-200 whitespace-nowrap shrink-0",
-                                                    selectedNote === note.id && "text-royal-violet-base font-medium",
-                                                    selectedNote !== note.id && "hover:bg-gray-50 text-gray-700",
+                                                    "flex-1 justify-start h-8 px-2 font-normal text-muted-foreground transition-all duration-200 whitespace-nowrap shrink-0",
+                                                    selectedNote === note.id && "text-primary font-medium",
+                                                    selectedNote !== note.id && "hover:bg-muted text-muted-foreground",
                                                 )}
                                                 onClick={() => {
                                                     if (!isProcessingMove && !isThisNoteDeleting && !isEditingNote) {
@@ -398,7 +398,7 @@ export function Sidebar({
                                                 disabled={isProcessingMove || isThisNoteDeleting}
                                             >
                                                 <div className="w-4 mr-1"></div>
-                                                <FileText className="h-3.5 w-3.5 mr-2 text-gray-500" />
+                                                <FileText className="h-3.5 w-3.5 mr-2 text-muted-foreground" />
 
                                                 {isEditingNote ? (
                                                     <div className="flex items-center flex-1">
@@ -414,13 +414,13 @@ export function Sidebar({
                                                                     cancelEditingNote()
                                                                 }
                                                             }}
-                                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-royal-violet-base flex-1"
+                                                            className="h-6 text-sm border-none p-0 focus-visible:ring-1 focus-visible:ring-primary flex-1"
                                                             autoFocus
                                                             onClick={(e) => e.stopPropagation()}
                                                             disabled={isSavingNoteName}
                                                         />
                                                         {isSavingNoteName && (
-                                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-royal-violet-base ml-2"></div>
+                                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary ml-2"></div>
                                                         )}
                                                     </div>
                                                 ) : (
@@ -437,7 +437,7 @@ export function Sidebar({
                                                     setPreloadedReferences([note])
                                                     window.dispatchEvent(new CustomEvent('open-chat-sidebar'))
                                                 }}
-                                                className="text-purple-600 focus:text-purple-700"
+                                                className="text-primary focus:text-primary"
                                             >
                                                 <MessageSquarePlus className="h-3 w-3 mr-2" />
                                                 Ask AI
@@ -484,7 +484,7 @@ export function Sidebar({
 
     return (
         <div
-            className="flex-1 overflow-auto bg-gradient-to-b from-gray-50 to-white"
+            className="flex-1 overflow-auto bg-transparent"
             onDragOver={(e) => {
                 if (isProcessingMove || isDeletingNotebook || isDeletingNote) return // Prevent drag over if another operation is in progress
                 e.preventDefault()
@@ -496,7 +496,7 @@ export function Sidebar({
             }}
         >
             <div className="p-2">
-                <h3 className="text-sm font-semibold text-gray-800 mb-3 px-2 py-1 bg-gray-100 rounded-md">Notebooks & Notes</h3>
+                <h3 className="text-sm font-semibold text-foreground mb-3 px-2 py-1 bg-muted rounded-md">Notebooks & Notes</h3>
                 <div className="space-y-1">{rootNotebooks.map((notebook) => renderNotebook(notebook))}</div>
             </div>
         </div>

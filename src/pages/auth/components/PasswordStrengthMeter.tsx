@@ -30,7 +30,7 @@ export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterPr
                                     : strength === 3
                                         ? "bg-yellow-500"
                                         : "bg-green-500"
-                                : "bg-gray-200"
+                                : "bg-muted"
                         )}
                     />
                 ))}
@@ -43,7 +43,7 @@ export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterPr
                         key={index}
                         className={cn(
                             "flex items-center gap-2 text-xs transition-colors duration-300",
-                            req.valid ? "text-green-600" : "text-gray-500"
+                            req.valid ? "text-green-600" : "text-muted-foreground"
                         )}
                     >
                         <div
@@ -51,13 +51,13 @@ export function PasswordStrengthMeter({ password = "" }: PasswordStrengthMeterPr
                                 "flex items-center justify-center w-4 h-4 rounded-full border transition-all duration-300",
                                 req.valid
                                     ? "bg-green-100 border-green-600"
-                                    : "bg-gray-100 border-gray-300"
+                                    : "bg-muted border-border"
                             )}
                         >
                             {req.valid ? (
                                 <Check className="w-3 h-3 text-green-600" />
                             ) : (
-                                <X className="w-3 h-3 text-gray-400" />
+                                <X className="w-3 h-3 text-muted-foreground" />
                             )}
                         </div>
                         <span>{req.label}</span>

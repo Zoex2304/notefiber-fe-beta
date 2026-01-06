@@ -28,8 +28,8 @@ export function SectionHeader({
 }: SectionHeaderProps) {
     return (
         <div className={cn("flex items-center justify-between mb-4", className)}>
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Icon className="h-5 w-5 text-gray-500" />
+            <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                <Icon className="h-5 w-5 text-muted-foreground" />
                 {title}
             </h3>
             {action}

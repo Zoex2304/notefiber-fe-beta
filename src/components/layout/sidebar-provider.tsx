@@ -115,7 +115,7 @@ export function Sidebar({ children, className }: SidebarProps) {
         <aside
             data-state={state}
             className={cn(
-                'flex flex-col border-r bg-white transition-[width] duration-200 ease-in-out',
+                'flex flex-col border-r bg-card transition-[width] duration-200 ease-in-out',
                 state === 'expanded' ? 'w-[var(--sidebar-width)]' : 'w-[var(--sidebar-width-collapsed)]',
                 className
             )}
@@ -163,13 +163,13 @@ export function SidebarRail({ className }: { className?: string }) {
             className={cn(
                 'absolute -right-3 top-1/2 -translate-y-1/2 z-10',
                 'flex h-6 w-6 items-center justify-center rounded-full',
-                'bg-white border shadow-sm hover:bg-gray-100 transition-colors',
+                'bg-card border shadow-sm hover:bg-muted transition-colors',
                 className
             )}
         >
             <PanelLeftIcon
                 className={cn(
-                    'h-3.5 w-3.5 text-gray-600 transition-transform duration-200',
+                    'h-3.5 w-3.5 text-muted-foreground transition-transform duration-200',
                     state === 'collapsed' && 'rotate-180'
                 )}
             />

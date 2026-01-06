@@ -38,8 +38,8 @@ export function FeatureIncludedItem({
                 <Check className="h-4 w-4" />
             </div>
             <div>
-                <p className="font-medium text-gray-900">{text}</p>
-                <p className="text-xs text-gray-500">Included</p>
+                <p className="font-medium text-foreground">{text}</p>
+                <p className="text-xs text-muted-foreground">Included</p>
             </div>
         </div>
     );

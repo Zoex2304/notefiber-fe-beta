@@ -84,7 +84,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false,
                             <User className="h-3.5 w-3.5 text-white" />
                         </div>
                     ) : (
-                        <div className="w-7 h-7 bg-white border border-purple-100 rounded-full flex items-center justify-center shadow-sm">
+                        <div className="w-7 h-7 bg-card border border-border rounded-full flex items-center justify-center shadow-sm">
                             <Bot className="h-4 w-4 text-purple-600" />
                         </div>
                     )}
@@ -97,7 +97,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false,
                             "rounded-2xl px-4 py-3 shadow-sm min-w-0 overflow-hidden relative text-[13.5px] leading-relaxed",
                             isUser
                                 ? "bg-gradient-primary-violet text-white rounded-tr-none"
-                                : "bg-white border border-gray-100 text-gray-800 shadow-sm rounded-tl-none"
+                                : "bg-card border border-border text-card-foreground shadow-sm rounded-tl-none"
                         )}
                     >
                         {/* Mode Badge - Only for assistant */}
@@ -142,34 +142,34 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false,
                                         strong: ({ children }) => <strong className="font-bold">{children}</strong>,
                                         em: ({ children }) => <em className="italic">{children}</em>,
                                         del: ({ children }) => <del className="line-through opacity-70">{children}</del>,
-                                        hr: () => <hr className="my-3 border-gray-200" />,
+                                        hr: () => <hr className="my-3 border-border" />,
                                         // Table support for LLM tabular responses
                                         table: ({ children }) => (
-                                            <div className="overflow-x-auto my-2 rounded-md border border-gray-200">
+                                            <div className="overflow-x-auto my-2 rounded-md border border-border">
                                                 <table className="w-full text-xs border-collapse">
                                                     {children}
                                                 </table>
                                             </div>
                                         ),
-                                        thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
-                                        tbody: ({ children }) => <tbody className="divide-y divide-gray-100">{children}</tbody>,
-                                        tr: ({ children }) => <tr className="hover:bg-gray-50/50">{children}</tr>,
-                                        th: ({ children }) => <th className="px-3 py-2 text-left font-semibold text-gray-700 border-b border-gray-200">{children}</th>,
-                                        td: ({ children }) => <td className="px-3 py-2 text-gray-600">{children}</td>,
+                                        thead: ({ children }) => <thead className="bg-muted">{children}</thead>,
+                                        tbody: ({ children }) => <tbody className="divide-y divide-border">{children}</tbody>,
+                                        tr: ({ children }) => <tr className="hover:bg-muted/50">{children}</tr>,
+                                        th: ({ children }) => <th className="px-3 py-2 text-left font-semibold text-muted-foreground border-b border-border">{children}</th>,
+                                        td: ({ children }) => <td className="px-3 py-2 text-foreground">{children}</td>,
                                         code: ({ node, className, children, ...props }) => {
                                             const match = /language-(\w+)/.exec(className || '');
                                             const isInline = !match && !String(children).includes('\n');
                                             return isInline ? (
-                                                <code className="bg-gray-100 text-purple-700 px-1 py-0.5 rounded text-xs font-mono border border-gray-200" {...props}>
+                                                <code className="bg-muted text-primary px-1 py-0.5 rounded text-xs font-mono border border-border" {...props}>
                                                     {children}
                                                 </code>
                                             ) : (
-                                                <div className="relative my-2 rounded-md overflow-hidden bg-gray-50 border border-gray-200 w-full">
-                                                    <div className="px-3 py-1.5 bg-gray-100 border-b border-gray-200 text-xs text-gray-500 font-mono flex justify-between items-center">
+                                                <div className="relative my-2 rounded-md overflow-hidden bg-muted/30 border border-border w-full">
+                                                    <div className="px-3 py-1.5 bg-muted border-b border-border text-xs text-muted-foreground font-mono flex justify-between items-center">
                                                         <span>{match?.[1] || 'text'}</span>
                                                     </div>
                                                     <div className="p-3 overflow-x-auto w-0 min-w-full">
-                                                        <code className={cn("text-xs font-mono text-gray-800 whitespace-pre block", className)} {...props}>
+                                                        <code className={cn("text-xs font-mono text-foreground whitespace-pre block", className)} {...props}>
                                                             {children}
                                                         </code>
                                                     </div>
@@ -177,7 +177,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false,
                                             );
                                         },
                                         blockquote: ({ children }) => (
-                                            <blockquote className="border-l-2 border-purple-200 pl-3 italic text-gray-500 my-2">
+                                            <blockquote className="border-l-2 border-primary/20 pl-3 italic text-muted-foreground my-2">
                                                 {children}
                                             </blockquote>
                                         ),
@@ -259,7 +259,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false,
                             <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-6 w-6 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md"
+                                className="h-6 w-6 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md"
                                 onClick={handleCopy}
                                 title="Copy"
                             >
@@ -271,7 +271,7 @@ export function ChatBubble({ message, onCitationClick, compact, animate = false,
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-6 w-6 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-md"
+                                    className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded-md"
                                     onClick={handleSaveToNotes}
                                     title="Save to Notes"
                                 >

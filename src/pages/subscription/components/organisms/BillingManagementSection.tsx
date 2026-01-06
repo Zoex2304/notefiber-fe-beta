@@ -74,12 +74,12 @@ export function BillingManagementSection({
                     icon={Calendar}
                     title="Billing Information"
                 />
-                <Card className="shadow-sm border-gray-100 bg-white overflow-hidden hover:shadow-md transition-shadow duration-300">
+                <Card className="shadow-sm border-border bg-card overflow-hidden hover:shadow-md transition-shadow duration-300">
                     <CardContent className="p-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             {/* Current Status */}
                             <div className="space-y-1">
-                                <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                                     Current Status
                                 </h4>
                                 <div className="flex items-center gap-2">
@@ -103,26 +103,26 @@ export function BillingManagementSection({
                             {/* Billing Date Info */}
                             {showEffectiveDate ? (
                                 <div className="space-y-1">
-                                    <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                                         Cancellation Effective
                                     </h4>
-                                    <p className="text-lg font-bold text-gray-900">
+                                    <p className="text-lg font-bold text-foreground">
                                         {new Date(latestCancellation!.effective_date!).toLocaleDateString()}
                                     </p>
-                                    <p className="text-xs text-gray-500">Access continues until this date</p>
+                                    <p className="text-xs text-muted-foreground">Access continues until this date</p>
                                 </div>
                             ) : (
                                 <div className="space-y-1">
-                                    <h4 className="text-sm font-medium text-gray-500 uppercase tracking-wider">
+                                    <h4 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
                                         {isPaidPlan ? 'Next Invoice' : 'Next Billing'}
                                     </h4>
-                                    <p className="text-lg font-bold text-gray-900">
+                                    <p className="text-lg font-bold text-foreground">
                                         {isPaidPlan
                                             ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()
                                             : "No upcoming charges"}
                                     </p>
                                     {isPaidPlan && (
-                                        <p className="text-xs text-gray-500">Auto-renews on this date</p>
+                                        <p className="text-xs text-muted-foreground">Auto-renews on this date</p>
                                     )}
                                 </div>
                             )}
@@ -162,13 +162,13 @@ export function BillingManagementSection({
             {showDangerZone && (
                 <div>
                     <div className="flex items-center gap-2 mb-4">
-                        <AlertTriangle className="h-5 w-5 text-red-500" />
-                        <h3 className="text-lg font-semibold text-gray-900">Danger Zone</h3>
+                        <AlertTriangle className="h-5 w-5 text-destructive" />
+                        <h3 className="text-lg font-semibold text-foreground">Danger Zone</h3>
                     </div>
-                    <Card className="border-red-100 bg-red-50/50 shadow-none hover:shadow-sm transition-shadow duration-300">
+                    <Card className="border-destructive/20 bg-destructive/5 shadow-none hover:shadow-sm transition-shadow duration-300">
                         <CardContent className="p-6">
-                            <h4 className="font-medium text-gray-900 mb-2">Cancel Subscription</h4>
-                            <p className="text-sm text-gray-500 mb-4">
+                            <h4 className="font-medium text-foreground mb-2">Cancel Subscription</h4>
+                            <p className="text-sm text-muted-foreground mb-4">
                                 Request to cancel your subscription. You will lose access to premium features at the end of your billing period.
                             </p>
                             <Button

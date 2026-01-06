@@ -70,7 +70,8 @@ export function SubscriptionHeroSection({
 
     return (
         <div className={cn(
-            "relative overflow-hidden rounded-2xl border border-gray-100 bg-soft-purple shadow-sm",
+            "relative overflow-hidden rounded-2xl border border-border bg-card shadow-sm",
+            isPaidPlan && "bg-soft-purple dark:bg-card", // Keep special bg for paid in light, default card in dark
             className
         )}>
             {/* Background Gradient */}
@@ -78,7 +79,7 @@ export function SubscriptionHeroSection({
                 <img
                     src={HeaderGradient}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+                    className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 dark:opacity-20"
                 />
             )}
 
@@ -105,7 +106,7 @@ export function SubscriptionHeroSection({
                     </div>
 
                     {/* Plan Name */}
-                    <h2 className="text-4xl font-bold text-[#0F0538] mb-2 flex items-center gap-3">
+                    <h2 className="text-4xl font-bold text-foreground mb-2 flex items-center gap-3">
                         {planName}
                         {isPaidPlan && (
                             <Crown className="h-6 w-6 text-yellow-500 fill-yellow-100" />
@@ -113,7 +114,7 @@ export function SubscriptionHeroSection({
                     </h2>
 
                     {/* Description */}
-                    <p className="text-[#4B3E8E] max-w-md font-medium">
+                    <p className="text-muted-foreground max-w-md font-medium">
                         {description}
                     </p>
                 </div>

@@ -2,6 +2,7 @@ import { cn } from '@/lib/utils';
 import { cva, type VariantProps } from 'class-variance-authority';
 import SymbolLogo from '@assets/images/landing/logo/logo_symbol.svg';
 import HorizontalLogo from '@assets/images/landing/logo/logo-horizontal.svg';
+import HorizontalLogoDark from '@assets/images/landing/logo/logo-horizontal-dark.svg';
 
 // Definisikan varian size
 const logoVariants = cva('flex-shrink-0', {
@@ -19,7 +20,7 @@ const logoVariants = cva('flex-shrink-0', {
 
 export interface LogoProps
   extends React.ImgHTMLAttributes<HTMLImageElement>,
-    VariantProps<typeof logoVariants> {
+  VariantProps<typeof logoVariants> {
   /**
    * Tipe logo yang akan ditampilkan
    */
@@ -33,14 +34,29 @@ export interface LogoProps
  * dengan 'size' yang bisa dikonfigurasi.
  */
 export function Logo({ variant, size, className, ...props }: LogoProps) {
-  const src = variant === 'symbol' ? SymbolLogo : HorizontalLogo;
-  const alt =
-    variant === 'symbol' ? 'NoteFiber Symbol' : 'NoteFiber Horizontal Logo';
+  if (variant === 'horizontal') {
+    return (
+      <div className={cn("relative", className)}>
+        <img
+          src={HorizontalLogo}
+          alt="NoteFiber Horizontal Logo"
+          className={cn(logoVariants({ size }), "dark:hidden")}
+          {...props}
+        />
+        <img
+          src={HorizontalLogoDark}
+          alt="NoteFiber Horizontal Logo"
+          className={cn(logoVariants({ size }), "hidden dark:block")}
+          {...props}
+        />
+      </div>
+    );
+  }
 
   return (
     <img
-      src={src}
-      alt={alt}
+      src={SymbolLogo}
+      alt="NoteFiber Symbol"
       className={cn(logoVariants({ size, className }))}
       {...props}
     />

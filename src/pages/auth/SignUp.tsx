@@ -80,15 +80,15 @@ export default function SignUp() {
 
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-gray-200" />
+                        <span className="w-full border-t border-border" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-white px-2 text-gray-500">Or</span>
+                        <span className="bg-background px-2 text-muted-foreground">Or</span>
                     </div>
                 </div>
 
                 {error && (
-                    <div className="flex items-center gap-3 rounded-md bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                    <div className="flex items-center gap-3 rounded-md bg-destructive/10 p-3 text-sm text-destructive border border-destructive/20">
                         <AlertTriangle className="h-4 w-4 shrink-0" />
                         <span>{error.message || "Failed to create account."}</span>
                     </div>
@@ -187,13 +187,13 @@ export default function SignUp() {
                                             />
                                         </FormControl>
                                         <div className="space-y-1 leading-none flex-1">
-                                            <FormLabel className="text-sm font-normal text-gray-600">
+                                            <FormLabel className="text-sm font-normal text-muted-foreground">
                                                 I agree with{" "}
-                                                <Link to="/landing" className="text-royal-violet-base hover:underline">
+                                                <Link to="/landing" className="text-primary hover:underline">
                                                     Terms
                                                 </Link>{" "}
                                                 and{" "}
-                                                <Link to="/landing" className="text-royal-violet-base hover:underline">
+                                                <Link to="/landing" className="text-primary hover:underline">
                                                     Privacy
                                                 </Link>
                                             </FormLabel>
@@ -215,9 +215,9 @@ export default function SignUp() {
                     </form>
                 </Form>
 
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-sm text-muted-foreground">
                     Already have an account?{" "}
-                    <Link to="/signin" className="text-royal-violet-base hover:underline">
+                    <Link to="/signin" className="text-primary hover:underline">
                         Sign In
                     </Link>
                 </div>

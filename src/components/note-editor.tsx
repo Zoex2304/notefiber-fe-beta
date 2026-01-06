@@ -85,12 +85,12 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
     return (
         <div className="flex-1 flex flex-col">
             {/* Header */}
-            <div className="border-b border-gray-200 p-4 bg-white">
+            <div className="border-b border-border p-4 bg-background">
                 <div className="flex items-center justify-between mb-3">
                     <Input
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="text-lg font-semibold border-none p-0 h-auto focus-visible:ring-0"
+                        className="text-lg font-semibold border-none p-0 h-auto focus-visible:ring-0 bg-transparent"
                         placeholder="Note title..."
                     />
                     <div className="flex items-center gap-2">
@@ -119,7 +119,7 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
                         </Button>
                     </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-muted-foreground">
                     {formatUpdatedAt(note.updatedAt)}
                 </div>
             </div>
@@ -127,14 +127,14 @@ export function NoteEditor({ note, onUpdate }: NoteEditorProps) {
             {/* Content */}
             <div className="flex-1 overflow-hidden flex flex-col">
                 {isPreview ? (
-                    <div className="h-full overflow-hidden flex flex-col bg-white">
+                    <div className="h-full overflow-hidden flex flex-col bg-background">
                         <Editor
                             initialContent={content}
                             readOnly={true}
                         />
                     </div>
                 ) : (
-                    <div className="h-full flex flex-col p-6 bg-white">
+                    <div className="h-full flex flex-col p-6 bg-background">
                         <Editor
                             key={note.id}
                             initialContent={note.content}

@@ -4,6 +4,7 @@ import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryProvider, queryClient } from './contexts/QueryClientProvider';
 import { AuthProvider } from './contexts/AuthContext';
 import { UsageLimitsProvider } from './contexts/UsageLimitsContext';
+import { ThemeProvider } from '@/core/theme/ThemeContext';
 import { TooltipProvider } from '@/components/shadui/tooltip';
 import './index.css';
 import 'katex/dist/katex.min.css';
@@ -32,9 +33,11 @@ createRoot(document.getElementById('root')!).render(
   <QueryProvider>
     <AuthProvider>
       <UsageLimitsProvider>
-        <TooltipProvider>
-          <RouterProvider router={router} />
-        </TooltipProvider>
+        <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+          <TooltipProvider>
+            <RouterProvider router={router} />
+          </TooltipProvider>
+        </ThemeProvider>
       </UsageLimitsProvider>
     </AuthProvider>
   </QueryProvider>

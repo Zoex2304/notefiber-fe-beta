@@ -95,7 +95,7 @@ export function Editor({ initialContent = "", onChange, readOnly = false }: Edit
 
     return (
         <LexicalComposer initialConfig={initialConfig}>
-            <div className={`editor-container border rounded-lg shadow-sm bg-white overflow-hidden flex flex-col w-full h-full ${readOnly ? 'border-none shadow-none' : 'min-h-[500px]'}`}>
+            <div className={`editor-container border rounded-lg shadow-sm bg-card overflow-hidden flex flex-col w-full h-full ${readOnly ? 'border-none shadow-none' : 'min-h-[500px] border-border'}`}>
                 {!readOnly && <ToolbarPlugin />}
                 <div className="editor-inner relative flex-1 overflow-auto">
                     <RichTextPlugin

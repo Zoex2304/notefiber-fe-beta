@@ -107,7 +107,7 @@ export function HistorySummaryCard({
                 action={
                     <Link
                         to={historyLink}
-                        className="text-royal-violet-base font-medium hover:text-shiny-purple hover:underline flex items-center text-sm transition-colors"
+                        className="text-primary font-medium hover:text-primary/80 hover:underline flex items-center text-sm transition-colors"
                     >
                         View all history <ArrowRight className="ml-1 h-3 w-3" />
                     </Link>
@@ -116,7 +116,7 @@ export function HistorySummaryCard({
 
             {/* Card */}
             <Card
-                className="shadow-sm border-gray-100 hover:shadow-md hover:border-gray-200 transition-all duration-200 cursor-pointer group"
+                className="shadow-sm border-border bg-card hover:shadow-md hover:border-primary/20 transition-all duration-200 cursor-pointer group"
                 onClick={onClick}
             >
                 <CardContent className="p-5 flex items-center justify-between gap-4">
@@ -132,7 +132,7 @@ export function HistorySummaryCard({
                         {/* Content */}
                         <div className="flex-1 min-w-0 space-y-1.5">
                             <div className="flex items-center justify-between gap-4">
-                                <span className="font-semibold text-gray-900 truncate">{title}</span>
+                                <span className="font-semibold text-foreground truncate">{title}</span>
                                 <Badge
                                     variant={variant}
                                     className={cn(
@@ -148,26 +148,26 @@ export function HistorySummaryCard({
 
                             {isRefund && amount !== undefined && (
                                 <div className="flex items-center gap-2">
-                                    <p className="font-medium text-gray-900">
+                                    <p className="font-medium text-foreground">
                                         {(amount / 100).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                                     </p>
-                                    <span className="text-gray-300">•</span>
-                                    <p className="text-sm text-gray-500 line-clamp-1">{reason}</p>
+                                    <span className="text-muted-foreground">•</span>
+                                    <p className="text-sm text-muted-foreground line-clamp-1">{reason}</p>
                                 </div>
                             )}
 
                             {!isRefund && (
-                                <p className="text-sm text-gray-500 line-clamp-1 max-w-md">{reason}</p>
+                                <p className="text-sm text-muted-foreground line-clamp-1 max-w-md">{reason}</p>
                             )}
 
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-muted-foreground">
                                 {isRefund ? 'Requested' : 'Submitted on'} {new Date(date).toLocaleDateString()}
                             </p>
                         </div>
                     </div>
 
                     {/* Arrow */}
-                    <ArrowRight className="h-5 w-5 text-gray-300 group-hover:text-royal-violet-base transition-colors shrink-0" />
+                    <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
                 </CardContent>
             </Card>
         </div>

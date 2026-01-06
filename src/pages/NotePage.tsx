@@ -16,18 +16,18 @@ export default function NotePage() {
     } = useNoteOrchestratorContext();
 
     return (
-        <div className="flex-1 flex flex-col bg-white overflow-hidden relative h-full">
+        <div className="flex-1 flex flex-col bg-background overflow-hidden relative h-full">
             {/* Note Content */}
             <div className="absolute inset-0 flex flex-col overflow-y-auto overflow-x-hidden">
                 {activeNote.isLoadingNote ? (
-                    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
+                    <div className="flex-1 flex items-center justify-center bg-background">
                         <div className="text-center">
                             <Loader2 className="h-12 w-12 animate-spin text-blue-600 mx-auto mb-4" />
                             <p className="text-gray-600">Loading note...</p>
                         </div>
                     </div>
                 ) : activeNote.noteError ? (
-                    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
+                    <div className="flex-1 flex items-center justify-center bg-background">
                         <div className="text-center">
                             <div className="text-6xl mb-4">❌</div>
                             <h2 className="text-xl font-medium mb-2 text-red-600">
@@ -69,7 +69,7 @@ export default function NotePage() {
                         </div>
                     </>
                 ) : (
-                    <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-gray-50 to-white">
+                    <div className="flex-1 flex items-center justify-center bg-muted/20">
                         <div className="text-center">
                             <div className="text-6xl mb-4">📝</div>
                             <h2 className="text-xl font-medium mb-2">

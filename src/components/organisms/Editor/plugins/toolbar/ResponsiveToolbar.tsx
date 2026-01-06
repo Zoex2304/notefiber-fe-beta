@@ -77,7 +77,7 @@ export function ResponsiveToolbar({ items, className }: ResponsiveToolbarProps) 
                 aria-hidden="true"
             >
                 {items.map((item) => (
-                    <div key={item.id} className="shrink-0 pr-2 border-r border-gray-200 mr-2 flex items-center">
+                    <div key={item.id} className="shrink-0 pr-2 border-r border-border mr-2 flex items-center">
                         {item.content}
                     </div>
                 ))}
@@ -86,14 +86,14 @@ export function ResponsiveToolbar({ items, className }: ResponsiveToolbarProps) 
             {/* Actual Toolbar */}
             <div
                 ref={containerRef}
-                className="flex items-center p-2 bg-white w-full overflow-hidden"
+                className="flex items-center p-2 bg-card w-full overflow-hidden"
             >
                 {visibleItems.map((item, index) => (
                     <div
                         key={item.id}
                         className={cn(
                             "shrink-0 flex items-center",
-                            index < visibleItems.length - 1 && "pr-2 border-r border-gray-200 mr-2"
+                            index < visibleItems.length - 1 && "pr-2 border-r border-border mr-2"
                         )}
                     >
                         {item.content}
@@ -111,7 +111,7 @@ export function ResponsiveToolbar({ items, className }: ResponsiveToolbarProps) 
                             <DropdownMenuContent align="end" className="w-80 p-3">
                                 <div className="flex flex-col gap-3">
                                     {overflowItems.map(item => (
-                                        <div key={item.id} className="flex flex-wrap gap-1 justify-start border-b border-gray-100 last:border-0 pb-3 last:pb-0 px-1">
+                                        <div key={item.id} className="flex flex-wrap gap-1 justify-start border-b border-border last:border-0 pb-3 last:pb-0 px-1">
                                             {item.content}
                                         </div>
                                     ))}

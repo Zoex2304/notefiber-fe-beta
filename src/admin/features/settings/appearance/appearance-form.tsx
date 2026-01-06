@@ -6,7 +6,7 @@ import { fonts } from '@admin/config/fonts'
 import { showSubmittedData } from '@admin/lib/show-submitted-data'
 import { cn } from '@admin/lib/utils'
 import { useFont } from '@admin/context/font-provider'
-import { useTheme } from '@admin/context/theme-provider'
+import { useTheme } from '@/core/theme/useTheme'
 import { Button, buttonVariants } from '@admin/components/ui/button'
 import {
   Form,

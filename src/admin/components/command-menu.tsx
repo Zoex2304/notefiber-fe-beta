@@ -2,7 +2,7 @@ import React from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { ArrowRight, ChevronRight, Laptop, Moon, Sun } from 'lucide-react'
 import { useSearch } from '@admin/context/search-provider'
-import { useTheme } from '@admin/context/theme-provider'
+import { useTheme } from '@/core/theme/useTheme'
 import {
   CommandDialog,
   CommandEmpty,

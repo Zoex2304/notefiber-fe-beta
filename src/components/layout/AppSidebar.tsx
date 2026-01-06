@@ -120,10 +120,10 @@ export function AppSidebar({
             side="left"
             isCollapsed={isCollapsed}
             onToggle={toggleCollapse}
-            className="border-r border-gray-200"
+            className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground"
         >
             {/* Header: Logo + Actions on SAME row - h-12 to match TopBar */}
-            <div className="h-12 px-4 border-b border-gray-200 flex items-center shrink-0">
+            <div className="h-12 px-4 border-b border-sidebar-border flex items-center shrink-0">
                 <div className="flex items-center justify-between w-full gap-2">
                     {/* Logo */}
                     {isCollapsed ? (
@@ -142,7 +142,7 @@ export function AppSidebar({
                                         className="h-7 w-7"
                                     >
                                         {isCreatingNotebook ? (
-                                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-600" />
+                                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-primary" />
                                         ) : (
                                             <FolderPlus className="h-4 w-4" />
                                         )}
@@ -257,12 +257,12 @@ export function AppSidebar({
                 ) : notebooks.length === 0 ? (
                     // Empty State
                     <div className="flex flex-col items-center justify-center h-full p-6 text-center space-y-4 animate-in fade-in duration-300">
-                        <div className="bg-gray-50 p-4 rounded-full shadow-sm ring-1 ring-gray-100 mb-2">
-                            <FolderPlus className="h-8 w-8 text-gray-400" />
+                        <div className="bg-muted p-4 rounded-full shadow-sm ring-1 ring-border mb-2">
+                            <FolderPlus className="h-8 w-8 text-muted-foreground" />
                         </div>
                         <div className="space-y-1">
-                            <h3 className="text-sm font-semibold text-gray-900">No notebooks yet</h3>
-                            <p className="text-xs text-gray-500 max-w-[200px] mx-auto leading-relaxed">
+                            <h3 className="text-sm font-semibold text-foreground">No notebooks yet</h3>
+                            <p className="text-xs text-muted-foreground max-w-[200px] mx-auto leading-relaxed">
                                 Create a notebook to start organizing your ideas and chats.
                             </p>
                         </div>
@@ -270,7 +270,7 @@ export function AppSidebar({
                             variant="outline"
                             size="sm"
                             onClick={onCreateNotebook}
-                            className="bg-white hover:bg-gray-50 text-gray-700 border-gray-200 mt-2"
+                            className="bg-card hover:bg-accent text-foreground border-border mt-2"
                         >
                             <FolderPlus className="mr-2 h-3.5 w-3.5" />
                             Create Notebook
@@ -301,7 +301,7 @@ export function AppSidebar({
             </div>
 
             {/* Footer: Plan Status Pill (like Mistral AI) */}
-            <div className="p-3 border-t border-gray-200 shrink-0">
+            <div className="p-3 border-t border-sidebar-border shrink-0">
                 {isCollapsed ? (
                     <ActionTooltip label="Your Plan" side="right">
                         <div className="flex justify-center">

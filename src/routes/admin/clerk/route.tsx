@@ -7,7 +7,7 @@ import { SidebarTrigger } from '@admin/components/ui/sidebar'
 import { ConfigDrawer } from '@admin/components/config-drawer'
 import { AuthenticatedLayout } from '@admin/components/layout/authenticated-layout'
 import { Main } from '@admin/components/layout/main'
-import { ThemeSwitch } from '@admin/components/theme-switch'
+import { ThemeSwitch } from '@/components/common/ThemeSwitch'
 
 export const Route = createFileRoute('/admin/clerk')({
   component: RouteComponent,

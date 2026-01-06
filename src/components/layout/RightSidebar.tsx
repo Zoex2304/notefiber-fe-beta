@@ -208,13 +208,13 @@ export function RightSidebar({
             onToggle={toggleCollapse}
             showToggle={isOpen}
             className={cn(
-                "border-l border-gray-200 h-full shadow-xl z-30 flex flex-col",
+                "border-l border-border h-full shadow-xl z-30 flex flex-col",
                 !isOpen && "border-none" // Hide border when width is 0 to avoid artifacts
             )}
         >
             {/* Header */}
             <div className={cn(
-                "flex items-center justify-between border-b border-gray-200 bg-white flex-shrink-0 overflow-hidden",
+                "flex items-center justify-between border-b border-border bg-background flex-shrink-0 overflow-hidden",
                 isCollapsed ? "h-12 px-2 flex-col justify-center gap-2" : "h-12 px-4"
             )}>
                 {isCollapsed ? (
@@ -230,7 +230,7 @@ export function RightSidebar({
                             )}
                             <div className="flex items-center gap-2 min-w-0">
                                 <Logo variant="symbol" className="h-5 w-5 shrink-0" />
-                                <span className="font-semibold text-sm text-gray-700 whitespace-nowrap overflow-hidden text-ellipsis">Ask AI</span>
+                                <span className="font-semibold text-sm text-foreground whitespace-nowrap overflow-hidden text-ellipsis">Ask AI</span>
                             </div>
                         </div>
 
@@ -244,7 +244,7 @@ export function RightSidebar({
                             {view === 'chat' && (
                                 <ActionTooltip label="History">
                                     <Button variant="ghost" size="icon" onClick={() => setView('history')}>
-                                        <Clock className="h-4 w-4 text-gray-500" />
+                                        <Clock className="h-4 w-4 text-muted-foreground" />
                                     </Button>
                                 </ActionTooltip>
                             )}
@@ -275,15 +275,15 @@ export function RightSidebar({
                             expand();
                             setView('history');
                         }}>
-                            <Clock className="h-4 w-4 text-gray-500" />
+                            <Clock className="h-4 w-4 text-muted-foreground" />
                         </Button>
                     </ActionTooltip>
                 </div>
             ) : (
-                <div className="flex flex-col flex-1 min-h-0 bg-gray-50/50 relative overflow-hidden">
+                <div className="flex flex-col flex-1 min-h-0 bg-muted/30 relative overflow-hidden">
                     {/* History View */}
                     {view === 'history' && (
-                        <div className="absolute inset-0 z-20 bg-white animate-in fade-in slide-in-from-right-4 duration-300">
+                        <div className="absolute inset-0 z-20 bg-card animate-in fade-in slide-in-from-right-4 duration-300">
                             <SessionHistoryList
                                 sessions={sessions}
                                 activeSessionId={activeSessionId}

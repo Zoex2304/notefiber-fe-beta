@@ -1,4 +1,5 @@
 import { UserProfileMenu } from "@/components/common/UserProfileMenu";
+import { ThemeSwitch } from "@/components/common/ThemeSwitch";
 
 import { Button } from "@/components/shadui/button";
 import { Search } from "lucide-react";
@@ -20,7 +21,7 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
     const showChat = checkPermission('ai_chat');
 
     return (
-        <div className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 gap-4">
+        <div className="h-12 bg-background border-b border-border flex items-center justify-between px-4 gap-4">
             {/* Left side spacer or breadcrumbs if needed, currently just pushing to right if justify-end, 
                  but user might want search on left/center? 
                  User said "search icon should be transformed into a full search bar". 
@@ -41,12 +42,12 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                         variant="outline"
                         onClick={onSearchClick}
                         className={cn(
-                            "hidden sm:flex bg-gray-50/50 group text-gray-500 hover:bg-gray-100 border border-gray-200 relative h-9 w-64 justify-start rounded-lg text-sm font-normal shadow-none transition-all"
+                            "hidden sm:flex bg-muted/50 group text-muted-foreground hover:bg-muted border border-border relative h-9 w-64 justify-start rounded-lg text-sm font-normal shadow-none transition-all"
                         )}
                     >
                         <Search className="h-4 w-4 mr-2 opacity-50" />
                         <span className="opacity-90">Search...</span>
-                        <kbd className="pointer-events-none absolute right-2 top-[50%] -translate-y-[50%] hidden h-5 select-none items-center gap-1 rounded border bg-gray-100 px-1.5 font-mono text-[10px] font-medium text-gray-500 opacity-100 sm:flex">
+                        <kbd className="pointer-events-none absolute right-2 top-[50%] -translate-y-[50%] hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100 sm:flex">
                             <span className="text-xs">⌘</span>K
                         </kbd>
                     </Button>
@@ -73,7 +74,8 @@ export const TopBar = ({ onSearchClick, onChatClick }: TopBarProps) => {
                     </GradientPill>
                 )}
 
-                <div className="h-6 w-px bg-gray-200 mx-1" />
+                <ThemeSwitch />
+                <div className="h-6 w-px bg-border mx-1" />
 
                 <NotificationDropdown />
                 <UserProfileMenu />

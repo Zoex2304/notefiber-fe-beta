@@ -53,12 +53,12 @@ export function UsageStatCard({
 
     return (
         <Card className={cn(
-            "shadow-sm border-gray-100 bg-white hover:shadow-md transition-all duration-300",
-            "hover:border-gray-200",
+            "shadow-sm border-border bg-card hover:shadow-md transition-all duration-300",
+            "hover:border-primary/20",
             className
         )}>
             <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-gray-500 flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                     <Icon className={cn("h-4 w-4", iconColor)} />
                     {title}
                 </CardTitle>
@@ -67,7 +67,7 @@ export function UsageStatCard({
                 <div className="space-y-4">
                     {/* Main Value Display */}
                     <div className="flex items-baseline justify-between">
-                        <div className="text-2xl font-bold text-gray-900">
+                        <div className="text-2xl font-bold text-foreground">
                             {(() => {
                                 if (showUnlimited) return "Active";
 
@@ -81,7 +81,7 @@ export function UsageStatCard({
                                 return `${Math.min(Math.round(rawPercentage), 100)}%`;
                             })()}
                         </div>
-                        <span className="text-sm text-gray-500">{displayLabel}</span>
+                        <span className="text-sm text-muted-foreground">{displayLabel}</span>
                     </div>
 
                     {/* Progress Visualization */}
@@ -101,7 +101,7 @@ export function UsageStatCard({
                     )}
 
                     {/* Usage Stats Footer */}
-                    <div className="flex justify-between text-xs text-gray-400">
+                    <div className="flex justify-between text-xs text-muted-foreground">
                         <span>{usage.used.toLocaleString()} used</span>
                         <span>
                             {usage.limit === -1

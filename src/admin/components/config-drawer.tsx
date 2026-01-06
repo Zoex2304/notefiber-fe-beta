@@ -14,7 +14,7 @@ import { IconThemeSystem } from '@admin/assets/custom/icon-theme-system'
 import { cn } from '@admin/lib/utils'
 import { useDirection } from '@admin/context/direction-provider'
 import { type Collapsible, useLayout } from '@admin/context/layout-provider'
-import { useTheme } from '@admin/context/theme-provider'
+import { useTheme } from '@/core/theme/useTheme'
 import { Button } from '@admin/components/ui/button'
 import {
   Sheet,
@@ -152,7 +152,7 @@ function RadioGroupItem({
         <item.icon
           className={cn(
             !isTheme &&
-              'stroke-primary fill-primary group-data-[state=unchecked]:stroke-muted-foreground group-data-[state=unchecked]:fill-muted-foreground'
+            'stroke-primary fill-primary group-data-[state=unchecked]:stroke-muted-foreground group-data-[state=unchecked]:fill-muted-foreground'
           )}
           aria-hidden='true'
         />

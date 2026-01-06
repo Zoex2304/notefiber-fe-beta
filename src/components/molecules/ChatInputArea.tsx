@@ -68,7 +68,7 @@ export function ChatInputArea({
     } = useChatInputController({ value, onChange, onSend, notes });
 
     return (
-        <div className={cn("p-4 border-t border-gray-200 bg-white shrink-0 relative", className)}>
+        <div className={cn("p-4 border-t border-border bg-background shrink-0 relative", className)}>
             {/* Suggestion Menu */}
             {showMenu && (
                 <SuggestionMenu
@@ -79,7 +79,7 @@ export function ChatInputArea({
             )}
 
             {/* Input Container */}
-            <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden focus-within:border-royal-violet-base focus-within:ring-1 focus-within:ring-royal-violet-base transition-all">
+            <div className="bg-background border border-border rounded-2xl shadow-sm overflow-hidden focus-within:border-royal-violet-base focus-within:ring-1 focus-within:ring-royal-violet-base transition-all">
                 {/* Pills Header */}
                 <InputPillsHeader
                     modes={activeModes}
@@ -107,7 +107,7 @@ export function ChatInputArea({
                             "resize-none border-none shadow-none",
                             "focus-visible:ring-0 focus-visible:ring-offset-0",
                             "py-2 px-2 bg-transparent text-sm",
-                            "placeholder:text-gray-400 overflow-y-auto"
+                            "placeholder:text-muted-foreground overflow-y-auto"
                         )}
                         disabled={disabled}
                         rows={1}
@@ -122,7 +122,7 @@ export function ChatInputArea({
                             "h-10 w-10 rounded-full transition-all shrink-0 self-end mb-0.5",
                             canSend
                                 ? "bg-gradient-primary-violet text-white hover:opacity-90 shadow-md"
-                                : "bg-gray-100 text-gray-400 hover:bg-gray-200"
+                                : "bg-muted text-muted-foreground hover:bg-muted/80"
                         )}
                     >
                         <Send className="h-5 w-5" />
@@ -131,7 +131,7 @@ export function ChatInputArea({
             </div>
 
             {/* Disclaimer */}
-            <div className="text-[10px] text-gray-400 text-center mt-2 font-medium">
+            <div className="text-[10px] text-muted-foreground text-center mt-2 font-medium">
                 AI can make mistakes. Please verify important information.
             </div>
         </div>

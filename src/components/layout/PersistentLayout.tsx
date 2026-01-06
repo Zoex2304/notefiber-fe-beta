@@ -64,7 +64,7 @@ export function PersistentLayout() {
     }, [isGenerating, isRightOpen, isRightCollapsed, openChat]);
 
     return (
-        <div className="flex h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        <div className="flex h-screen bg-background overflow-hidden">
             {/* Left Sidebar */}
             <AppSidebar {...appSidebarProps} />
 
@@ -76,7 +76,7 @@ export function PersistentLayout() {
                 />
 
                 {/* Content Area - Where specific pages like MainApp, NotePage, AccountSettings rendered */}
-                <div className="flex-1 flex flex-col bg-white overflow-y-auto overflow-x-hidden relative">
+                <div className="flex-1 flex flex-col bg-background overflow-y-auto overflow-x-hidden relative">
                     <Outlet />
                 </div>
             </div>

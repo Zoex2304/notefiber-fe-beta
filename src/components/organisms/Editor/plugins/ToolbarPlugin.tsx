@@ -126,7 +126,7 @@ export default function ToolbarPlugin() {
 
     return (
         <TooltipProvider>
-            <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
+            <div className="border-b border-border bg-card sticky top-0 z-10">
                 <ResponsiveToolbar items={items} />
             </div>
         </TooltipProvider>

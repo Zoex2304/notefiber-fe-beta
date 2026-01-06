@@ -31,8 +31,8 @@ export function SidebarLayout({
     return (
         <aside
             className={cn(
-                "relative flex flex-col bg-white transition-[width] duration-200 ease-in-out z-20 will-change-[width]",
-                isLeft ? "border-r border-gray-200" : "border-l border-gray-200",
+                "relative flex flex-col bg-card transition-[width] duration-200 ease-in-out z-20 will-change-[width]",
+                isLeft ? "border-r border-border" : "border-l border-border",
                 className
             )}
             style={{ width: isCollapsed ? collapsedWidth : width }}
@@ -48,8 +48,8 @@ export function SidebarLayout({
                     className={cn(
                         "absolute top-1/2 -translate-y-1/2 z-30",
                         "flex h-6 w-6 items-center justify-center rounded-full",
-                        "bg-white border border-gray-200 shadow-sm",
-                        "text-gray-500 hover:text-royal-violet-base hover:border-royal-violet-base/20 transition-colors",
+                        "bg-card border border-border shadow-sm",
+                        "text-muted-foreground hover:text-primary hover:border-primary/20 transition-colors",
                         isLeft ? "-right-3" : "-left-3"
                     )}
                     aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}

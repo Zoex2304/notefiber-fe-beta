@@ -10,24 +10,24 @@ export function NoteBreadcrumb({ note, onFolderClick }: NoteBreadcrumbProps) {
     if (!note?.breadcrumb?.length) return null;
 
     return (
-        <nav className="flex items-center gap-1 text-sm text-gray-500 px-6 py-3 bg-gray-50 border-b border-gray-200">
+        <nav className="flex items-center gap-1 text-sm text-muted-foreground px-6 py-3 bg-muted/40 border-b border-border">
             {note.breadcrumb.map((crumb, index) => (
                 <span key={crumb.id} className="flex items-center gap-1">
-                    {index > 0 && <ChevronRight className="w-4 h-4 text-gray-400" />}
+                    {index > 0 && <ChevronRight className="w-4 h-4 text-muted-foreground/50" />}
 
                     <button
                         type="button"
-                        className="flex items-center gap-1 hover:underline cursor-pointer hover:text-gray-900 transition-colors bg-transparent border-none p-0 font-inherit"
+                        className="flex items-center gap-1 hover:underline cursor-pointer hover:text-foreground transition-colors bg-transparent border-none p-0 font-inherit"
                         onClick={() => onFolderClick?.(crumb.id)}
                     >
-                        <Folder className="w-4 h-4 text-gray-400" />
+                        <Folder className="w-4 h-4 text-muted-foreground" />
                         {crumb.name}
                     </button>
                 </span>
             ))}
-            <ChevronRight className="w-4 h-4 text-gray-400" />
-            <span className="text-gray-900 font-medium flex items-center gap-1">
-                <FileText className="w-4 h-4 text-royal-violet-base" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+            <span className="text-foreground font-medium flex items-center gap-1">
+                <FileText className="w-4 h-4 text-primary" />
                 {note.title}
             </span>
         </nav>

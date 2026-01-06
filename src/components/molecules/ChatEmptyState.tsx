@@ -29,7 +29,7 @@ export function ChatEmptyState({
     ];
 
     return (
-        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-gray-400 p-8 space-y-6">
+        <div className="flex flex-col items-center justify-center h-[60vh] text-center text-muted-foreground p-8 space-y-6">
             <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -47,8 +47,8 @@ export function ChatEmptyState({
             </motion.div>
 
             <div className="space-y-1">
-                <h3 className="text-gray-900 font-semibold text-xl">{title}</h3>
-                <p className="text-sm text-gray-500 max-w-[250px] mx-auto">{description}</p>
+                <h3 className="text-foreground font-semibold text-xl">{title}</h3>
+                <p className="text-sm text-muted-foreground max-w-[250px] mx-auto">{description}</p>
             </div>
 
             {/* Quick Actions Grid */}
@@ -60,10 +60,10 @@ export function ChatEmptyState({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + (index * 0.05) }}
                         onClick={() => onAction?.(action.prompt, action.triggerNotes)}
-                        className="flex flex-col items-center justify-center p-3 gap-2 bg-white border border-gray-100 rounded-xl hover:bg-purple-50 hover:border-purple-100 hover:text-purple-700 transition-all group shadow-sm hover:shadow-md"
+                        className="flex flex-col items-center justify-center p-3 gap-2 bg-card border border-border rounded-xl hover:bg-primary/5 hover:border-primary/20 hover:text-primary transition-all group shadow-sm hover:shadow-md"
                     >
-                        <action.icon className="h-5 w-5 text-gray-400 group-hover:text-purple-600 transition-colors" />
-                        <span className="text-xs font-medium text-gray-600 group-hover:text-purple-700">{action.label}</span>
+                        <action.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="text-xs font-medium text-muted-foreground group-hover:text-primary">{action.label}</span>
                     </motion.button>
                 ))}
             </div>

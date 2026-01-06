@@ -37,9 +37,9 @@ export const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputPro
                         onClick={() => setShowPassword((prev) => !prev)}
                     >
                         {showPassword ? (
-                            <Eye className="h-4 w-4 text-gray-500" />
+                            <Eye className="h-4 w-4 text-muted-foreground" />
                         ) : (
-                            <EyeOff className="h-4 w-4 text-gray-500" />
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
                         )}
                         <span className="sr-only">
                             {showPassword ? "Hide password" : "Show password"}
