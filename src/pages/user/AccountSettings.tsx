@@ -50,6 +50,7 @@ import { BillingInfoCard } from "@/components/user/BillingInfoCard";
 import { UsageLimitsGrid } from "@/components/user/UsageLimitsGrid";
 
 import HeaderGradient from '@/assets/images/common/header gradient_v2.svg';
+import HeaderGradientDark from '@/assets/images/common/header gradient_v2_dark.svg';
 
 const profileSchema = z.object({
     full_name: z.string().min(2, {
@@ -170,7 +171,12 @@ export default function AccountSettings() {
                     <img
                         src={HeaderGradient}
                         alt="Profile Banner"
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover dark:hidden"
+                    />
+                    <img
+                        src={HeaderGradientDark}
+                        alt="Profile Banner"
+                        className="w-full h-full object-cover hidden dark:block"
                     />
                 </div>
             </div>

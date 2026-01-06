@@ -42,15 +42,15 @@ export function Toaster({ ...props }: ToasterProps) {
                 className="toaster group"
                 toastOptions={{
                     classNames: {
-                        // Container: Light gradient background, dark shadow
-                        toast: "group toast group-[.toaster]:bg-cover group-[.toaster]:bg-center group-[.toaster]:border-gray-200/50 group-[.toaster]:shadow-xl group-[.toaster]:rounded-xl group-[.toaster]:p-4 group-[.toaster]:gap-4 group-[.toaster]:font-sans overflow-hidden relative !bg-transparent",
+                        toast: "group toast group-[.toaster]:bg-cover group-[.toaster]:bg-center group-[.toaster]:border-border group-[.toaster]:shadow-xl group-[.toaster]:rounded-xl group-[.toaster]:p-4 group-[.toaster]:gap-4 group-[.toaster]:font-sans overflow-hidden relative !bg-transparent dark:!bg-card dark:!bg-none",
+                        title: "!text-foreground !font-semibold !text-sm",
+                        description: "!text-muted-foreground !font-medium !text-xs",
+                        actionButton: "!bg-primary !text-primary-foreground !font-semibold",
+                        cancelButton: "!bg-muted !text-muted-foreground hover:!bg-muted/80",
 
-                        // Text: Dark colors for visibility on light background
-                        title: "!text-gray-900 !font-semibold !text-sm",
-                        description: "!text-gray-600 !font-medium !text-xs",
+                        // Icon coloration & Boldness
 
-                        actionButton: "!bg-gray-900 !text-white !font-semibold",
-                        cancelButton: "!bg-gray-100 !text-gray-500 hover:!bg-gray-200",
+
 
                         // Icon coloration & Boldness
                         // Increasing stroke width via [&_svg]:stroke-[2.5] if possible, or just color intensity

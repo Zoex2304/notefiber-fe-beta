@@ -22,7 +22,7 @@ export function AuthLayout({ children, title }: AuthLayoutProps) {
                 <img
                     src="/src/assets/images/landing/illustrations/auth ilustration.svg"
                     alt="Auth Illustration"
-                    className="absolute inset-0 w-full h-full object-cover"
+                    className="absolute inset-0 w-full h-full object-cover dark:brightness-75 dark:sepia-[.2]"
                 />
             </div>
 

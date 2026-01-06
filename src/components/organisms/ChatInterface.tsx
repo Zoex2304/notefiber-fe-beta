@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { Bot, MessageSquare, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import ChatbotBackground from "@/assets/images/common/chatbot_gradient_background_v2.svg";
+import ChatbotBackground from '@/assets/images/common/chatbot_gradient_background_v2.svg';
+import ChatbotBackgroundDark from '@/assets/images/common/chatbot_gradient_background_v2_dark.svg';
 
 import { ChatBubble } from "@/components/molecules/ChatBubble";
 import { PixelLoader } from "@/components/molecules/PixelLoader";
@@ -157,7 +158,12 @@ export function ChatInterface({
             <img
                 src={ChatbotBackground}
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover pointer-events-none -z-10 opacity-50"
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none -z-10 opacity-50 dark:hidden"
+            />
+            <img
+                src={ChatbotBackgroundDark}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none -z-10 hidden dark:block"
             />
 
             {/* Content Container - strictly bounded */}
