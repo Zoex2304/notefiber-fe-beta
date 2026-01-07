@@ -1,4 +1,6 @@
 import { Button } from "@/components/shadui/button";
+import { API_CONFIG } from "@/api/config/api.config";
+import { ENDPOINTS } from "@/api/config/endpoints";
 
 export function GoogleSignInButton() {
   return (
@@ -9,7 +11,7 @@ export function GoogleSignInButton() {
       onClick={() => {
         // Redirect user to backend Google OAuth endpoint
         console.log("Redirecting to Google Auth Backend...");
-        window.location.href = "http://localhost:3000/api/auth/google";
+        window.location.href = `${API_CONFIG.BASE_URL}${ENDPOINTS.AUTH.GOOGLE}`;
       }}
     >
       <img
