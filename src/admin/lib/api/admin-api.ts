@@ -45,7 +45,7 @@ import type {
 import { ADMIN_ENDPOINTS } from '../../config/admin-endpoints'
 
 // Base API configuration
-const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000'
+const envUrl = import.meta.env.VITE_API_BASE_URL || 'https://notefiber-be-beta-production.up.railway.app'
 const API_BASE_URL = envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`
 
 const apiClient = axios.create({

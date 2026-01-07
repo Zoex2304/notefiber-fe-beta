@@ -158,7 +158,7 @@ export function getWebSocketUrl(): string {
     }
 
     // Otherwise derive from API base URL (e.g., http://localhost:3000/api -> ws://localhost:3000/api/ws)
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://notefiber-be-beta-production.up.railway.app';
 
     try {
         const url = new URL(apiBaseUrl);
@@ -166,7 +166,7 @@ export function getWebSocketUrl(): string {
         return `${protocol}//${url.host}/api/ws`;
     } catch {
         // Fallback for development
-        return 'ws://localhost:3000/api/ws';
+        return 'wss://notefiber-be-beta-production.up.railway.app/api/ws';
     }
 }
 

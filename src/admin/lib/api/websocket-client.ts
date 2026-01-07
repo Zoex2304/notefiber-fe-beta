@@ -112,13 +112,13 @@ export class WebSocketClient {
 }
 
 export function getWebSocketUrl(): string {
-    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://notefiber-be-beta-production.up.railway.app';
     try {
         const url = new URL(apiBaseUrl);
         const protocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
         // Ensure /api/ws path
         return `${protocol}//${url.host}/api/ws`;
     } catch {
-        return 'ws://localhost:3000/api/ws';
+        return 'wss://notefiber-be-beta-production.up.railway.app/api/ws';
     }
 }

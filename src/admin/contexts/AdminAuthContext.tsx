@@ -18,7 +18,7 @@ interface AdminAuthContextType {
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
-const envUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+const envUrl = import.meta.env.VITE_API_BASE_URL || 'https://notefiber-be-beta-production.up.railway.app';
 const API_BASE_URL = envUrl.endsWith('/api') ? envUrl : `${envUrl}/api`;
 
 export const AdminAuthProvider = ({ children }: { children: ReactNode }) => {
